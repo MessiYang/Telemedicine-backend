@@ -1,0 +1,5540 @@
+swagger: "2.0"
+info:
+  version: "D 2021.5.17"
+  title: TeleMedicine API Doc
+# during dev, should point to your local machine
+host: teleapidev.healthplus.tw/v1.0.2
+# basePath prefixes all resource paths 
+basePath: /
+# 
+schemes:
+  # tip: remove http to make production-grade
+  #- http
+  - https
+# format of bodies a client can send (Content-Type)
+consumes:
+  - application/json
+# format of the responses to the client (Accepts)
+produces:
+  - application/json
+tags:
+- name: account
+  description: 帳號管理
+- name: account p'tAPP
+  description: 帳號管理
+- name: user
+  description: 使用者管理
+- name: user p'tAPP
+  description: 使用者管理
+- name: outpatient
+  description: 門診管理
+- name: outpatient p'tAPP
+  description: 門診管理
+- name: appointment
+  description: 掛號管理
+- name: appointment p'tAPP
+  description: 掛號管理 
+- name: communicate
+  description: 醫病溝通
+- name: communicate p'tAPP
+  description: 醫病溝通
+- name: familyMember
+  description: 醫病溝通(Jack)
+- name: vitalSign
+  description: 生理資訊
+- name: payment
+  description: 支付相關  
+- name: department
+  description: 科別管理  
+- name: zoomAccount
+  description: zoom帳號管理
+- name: company
+  description: 醫院管理
+- name: report
+  description: 報表管理
+- name: middleware
+  description: 醫院中介
+- name: log
+  description: 使用者活動紀錄
+- name: meeting
+  description: 會議記錄調閱  
+
+
+paths:
+  /account/login:
+    # binds a127 app logic to a route
+    x-swagger-router-controller: accountController
+    post:
+      tags:
+      - account    
+      summary: Returns account token.
+      #description: Returns account token
+      # used as the method name of the controller
+      operationId: /account/login
+      parameters:
+      - in: body
+        name: body
+        description: object that needs to be added to the account
+        required: true
+        schema:
+          $ref: '#/definitions/Account'
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/AccountLoginRes"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /account/signup:
+    x-swagger-router-controller: accountController
+    post:
+      tags:  
+      - account p'tAPP
+      summary: 註冊帳號 [病人app]
+      operationId: /account/signup
+      parameters:
+      - in: body
+        name: body
+        description: 輸入帳密和基本資料(role:128醫生, 16病患, 8家屬 參見/user​/getRoleTypeList API)
+        required: true
+        schema:
+          example:
+            role: 16 
+            name: 王小銘
+            personalId: "A123456789  //身分證 "
+            birthday: 1993-07-19  //生日 格式:yyyy-mm-dd  
+            account: doctor1234 //醫生註冊必填 病人不用
+            mobile: "0999999999 //病人註冊必填 醫生不用"
+            password: "649a13eded2efe17089f1ac1d0ff9e619e7266754ac14b3803e010ba //同login API密碼需hash"
+            companyCode: "fetdev //依不同醫院app填入不同code" 
+      responses:
+        "200":
+          description: Success
+          schema:
+            example:
+              success: true
+              data:
+                accountId: 5d92e4f619587588f4288623
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse" 
+  /account/createDoctor:
+    x-swagger-router-controller: accountController
+    post:
+      tags:  
+      - account
+      summary: 新增醫師帳號 [web]
+      operationId: /account/createDoctor
+      parameters:
+      - in: body
+        name: body
+        description: 輸入帳密和基本資料
+        required: true
+        schema:
+          example:
+            name: 王小銘
+            role: 128 //必填 128醫師 64護理師
+            account: doctor1234 //必填
+            password: "649a13eded2efe17089f1ac1d0ff9e619e7266754ac14b3803e010ba //同login API 密碼需hash"
+            department: "眼科 //從科別列表取得" 
+            departmentCode: "A123 //從科別列表取得"
+            briefIntro: "醫師簡介"
+            hospital: 大武衛生所  //所屬醫院名 
+            hospitalCode: "1003949 //所屬醫院代碼"
+      responses:
+        "200":
+          description: Success
+          schema:
+            example:
+              success: true
+              data:
+                accountId: 5d92e4f619587588f4288623
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"  
+  /account/updateDoctor:
+    x-swagger-router-controller: accountController
+    post:
+      tags:  
+      - account
+      summary: 修改醫師資料 [web]
+      operationId: /account/updateDoctor
+      parameters:
+      - in: body
+        name: body
+        description: 輸入修改資料
+        required: true
+        schema:
+          example:
+            doctorId: 5e7d5bd8a9b50859082994da //必填 (listEmployee API 的_id)
+            accountId: 5e7d5bd7e0b3b5d29a7f6670 //必填
+            name: 王小銘 
+            hospital: 大武衛生所  //所屬醫院名 
+            hospitalCode: "1003949 //所屬醫院代碼"
+            password: "649a13eded2efe17089f1ac1d0ff9e619e7266754ac14b3803e010ba //同login API密碼需hash"
+            department: "眼科 //從科別列表取得" 
+            departmentCode: "A123 //從科別列表取得"
+            briefIntro: "醫師簡介"
+      responses:
+        "200":
+          description: Success
+          schema:
+            example:
+              success: true
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"    
+  /account/removeDoctor:
+    x-swagger-router-controller: accountController
+    post:
+      tags:  
+      - account
+      summary: 移除醫師帳號 [web]
+      operationId: /account/removeDoctor
+      parameters:
+      - in: body
+        name: body
+        description: 輸入使用者與帳號_id
+        required: true
+        schema:
+          example:
+            doctorId: 5e7d5bd8a9b50859082994da //必填 (listEmployee API 的_id)
+            accountId: 5e7d5bd7e0b3b5d29a7f6670 //必填
+      responses:
+        "200":
+          description: Success
+          schema:
+            example:
+              success: true
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"     
+  /account/createPatient:
+    x-swagger-router-controller: accountController
+    post:
+      tags:  
+      - account
+      summary: 新增病人帳號 [web]
+      operationId: /account/createPatient
+      parameters:
+      - in: body
+        name: body
+        description: 輸入帳密和基本資料
+        required: true
+        schema:
+          example:
+            name: 廖小銘
+            role: 16 //必填 16病人 8家屬
+            mobile: 0911111222 //必填 亦為病人帳號
+            personalId: A123456711 //身分證
+            birthday: "1999-05-24   //生日 格式:yyyy-mm-dd " 
+            password: "649a13eded2efe17089f1ac1d0ff9e619e7266754ac14b3803e010ba //同login API 密碼需hash"
+            briefIntro: "簡介"
+            department: 一般外科
+            departmentCode: "A2031"
+            wardName: 外科病房
+            wardCode: "102C"
+            # isMainContact: false  //true=為主要聯絡人 (家屬需填入此欄位)
+            # relationalPatientId: "[5d92e4f619587588f4288623, 1292e4f619587588f4288623] //病患的_id (家屬需填入此欄位)"
+      responses:
+        "200":
+          description: Success
+          schema:
+            example:
+              success: true
+              data:
+                accountId: 5d92e4f619587588f4288623
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"  
+  /account/updatePatient:
+    x-swagger-router-controller: accountController
+    post:
+      tags:  
+      - account
+      summary: 修改病人資料 [web]
+      operationId: /account/updatePatient
+      parameters:
+      - in: body
+        name: body
+        description: 輸入修改資料
+        required: true
+        schema:
+          example:
+            patientId: 5e7d5bd8a9b50859082994da //必填 (listCustomer API 的_id)
+            accountId: 5e7d5bd7e0b3b5d29a7f6670 //必填
+            name: 廖小銘 
+            birthday: "1999-05-24   //生日 格式:yyyy-mm-dd " 
+            password: "649a13eded2efe17089f1ac1d0ff9e619e7266754ac14b3803e010ba //同login API密碼需hash"
+            briefIntro: "簡介2"
+            personalId: A123456711 //身分證
+            department: 一般外科
+            departmentCode: "A2031"
+            wardName: 外科病房
+            wardCode: "102C"
+            # isMainContact: false  //true=為主要聯絡人 (家屬需填入此欄位)
+            # relationalPatientId: "[5d92e4f619587588f4288623, 1292e4f619587588f4288623] //病患的_id (家屬需填入此欄位)"
+      responses:
+        "200":
+          description: Success
+          schema:
+            example:
+              success: true
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"    
+  /account/updatePatientForApp:
+    x-swagger-router-controller: accountController
+    post:
+      tags:  
+      - account p'tAPP
+      summary: 修改病人資料 民眾APP使用 [app]
+      operationId: /account/updatePatientForApp
+      parameters:
+      - in: body
+        name: body
+        description: 輸入修改資料
+        required: true
+        schema:
+          example:
+            name: "曹小高"
+            personalId: "F123456789  //身分證"
+            birthday: "1999-05-24   //生日 格式:yyyy-mm-dd " 
+      responses:
+        "200":
+          description: Success
+          schema:
+            example:
+              success: true
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"               
+  /account/removePatient:
+    x-swagger-router-controller: accountController
+    post:
+      tags:  
+      - account
+      summary: 移除病人帳號 [web]
+      operationId: /account/removePatient
+      parameters:
+      - in: body
+        name: body
+        description: 輸入使用者與帳號_id
+        required: true
+        schema:
+          example:
+            doctorId: 5e7d5bd8a9b50859082994da //必填 (listCustomer API 的_id)
+            accountId: 5e7d5bd7e0b3b5d29a7f6670 //必填
+      responses:
+        "200":
+          description: Success
+          schema:
+            example:
+              success: true
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"                                         
+  /account/checkVerifyCode:
+    x-swagger-router-controller: accountController
+    post:
+      tags:
+      - account p'tAPP   
+      summary: 認證簡訊碼 [病人App]
+      operationId: /account/checkVerifyCode
+      parameters:
+      - in: body
+        name: body
+        description: 輸入帳密_id(註冊和忘記密碼時取得)和簡訊碼
+        required: true
+        schema:
+          example:
+            accountId: 5d92e4f619587588f4288623
+            verifyCode: "12345"
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/SuccessResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"      
+  /account/resendVerifyCode:
+    x-swagger-router-controller: accountController
+    post:
+      tags:
+      - account p'tAPP   
+      summary: 重送簡訊碼 [病人App]
+      operationId: /account/resendVerifyCode
+      parameters:
+      - in: body
+        name: body
+        description: 輸入帳號
+        required: true
+        schema:
+          example:
+            account: "0981641201"
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/SuccessResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"                 
+  /account/logout:
+    x-swagger-router-controller: accountController
+    post:
+      tags:
+      - account    
+      summary: 帳號登出
+      operationId: /account/logout
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true      
+      - in: body
+        name: body
+        description: apnToken or fcmToken (option) 
+        required: false
+        schema:
+          example: 
+            voipToken: "345tgfghu4igvjtyuty678jf9445 //通話推播Token"
+            apnToken: "rjj4f4j4igvj4jv4ijf9445"
+            fcmToken: "1334rtr5vbnjuyttgrr55"
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/SuccessResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /account/auth:
+    x-swagger-router-controller: accountController
+    post:
+      tags:
+      - account    
+      summary: 驗證token [middleware]
+      operationId: /account/auth
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true      
+      - in: body
+        name: body
+        description: 空object
+        required: true
+        schema:
+          $ref: '#/definitions/Blank'
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/AccountLoginRes"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"            
+  /account/forgetPassword:
+    x-swagger-router-controller: accountController
+    post:
+      tags:  
+      - account p'tAPP
+      summary: 忘記密碼 [病人app, web]
+      operationId: /account/forgetPassword
+      parameters:
+      - in: body
+        name: body
+        description: 輸入帳號
+        required: true
+        schema:
+          example:
+            account: "0999999999"
+      responses:
+        "200":
+          description: Success
+          schema:
+            example:
+              success: true
+              data:
+                account: "0999999999"
+                accountId: "5d9db6a52595ca078cc98d57"
+                verifyCode: "73363  //暫用 簡訊開通後不會有此項"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"   
+  /account/resetPassword:
+    x-swagger-router-controller: accountController
+    post:
+      tags:  
+      - account p'tAPP
+      summary: 忘記密碼重新設定 [病人app, web]
+      operationId: /account/resetPassword
+      parameters:
+      - in: body
+        name: body
+        description: 輸入帳號, 簡訊碼和新密碼
+        required: true
+        schema:
+          example:
+            account: "0999999999"
+            verifyCode: "73363"
+            password: "649a13eded2efe17089f1ac1d0ff9e619e7266754ac14b3803e010ba //同login API密碼需hash"
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/SuccessResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"     
+  /account/updatePassword:
+    x-swagger-router-controller: accountController
+    post:
+      tags:  
+      - account p'tAPP
+      summary: 修改密碼 [病人app, web]
+      operationId: /account/updatePassword
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 輸入舊密碼和新密碼
+        required: true
+        schema:
+          example:
+            oldPassword: "649a13eded2efe17089f1ac1d0ff9e619e7266754ac14b3803e010ba //同login API密碼需hash"
+            newPassword: "7f807a00e0cdd4e6372d9a2dc877dc695c8c72f2e67cffa587280f48 //同login API密碼需hash"
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/SuccessResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"               
+  /account/refreshToken:
+    # binds a127 app logic to a route
+    x-swagger-router-controller: accountController
+    post:
+      tags:
+      - account    
+      summary: Returns new token.
+      # used as the method name of the controller
+      operationId: /account/refreshToken
+      parameters:
+      - in: body
+        name: body
+        description: 輸入登入時取得的refreshToken
+        required: true
+        schema:
+          type: object
+          required:
+          - token
+          properties:
+            token:
+              description: 登入時取得的refreshToken
+              type: string
+              example: eyJhbGciOiJSUzUxMiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI1ZDBiMWFkObGV2ZWxPbmVJZCI6IjVkMGIxYWQ3MDM5ZjNkMmQ2MGY2Y2M2NiIsImlhdCI6MTU2MTQ0MDY4OCwiZXhwIjoxNTYxNDU1MDg4LCJpc3MiOiJmZXRfZGVtb190b2tlbiJ9.bWRTE503yEmZMl1kIyh1tzXp
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/AccountRefreshTokenRes"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"   
+  /account/getErrorList:
+    # binds a127 app logic to a route
+    x-swagger-router-controller: accountController
+    post:
+      tags:
+      - account    
+      summary: Returns system error code list.
+      # used as the method name of the controller
+      operationId: /account/getErrorList
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 空object
+        required: true
+        schema:
+          $ref: '#/definitions/Blank'
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/AccountGetErrorList"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"  
+  /account/apiHealth:
+    x-swagger-router-controller: accountController
+    post:
+      tags:
+      - account 
+      summary: 檢查API server 正常情況和版本
+      operationId: /account/apiHealth
+      parameters:
+      - in: body
+        name: body
+        description: 空object
+        required: true
+        schema:
+          $ref: '#/definitions/Blank'
+      responses:
+        "200":
+          description: Success
+          schema:
+            example: 
+              success: true
+              data:
+                service: "service-telemedicine-backend" 
+                version: "0.0.0"
+                note: ""
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /account/siteVerify:
+    x-swagger-router-controller: accountController
+    post:
+      tags:
+      - account 
+      summary: 查詢google siteVerify [web]
+      operationId: /account/siteVerify
+      parameters:
+      - in: body
+        name: body
+        description: 輸入user response token
+        required: true
+        schema:
+          example: 
+            response: "03AGdTF0nNN9E.....3rEYV8 //The user response token" 
+      responses:
+        "200":
+          description: Success
+          schema:
+            example: 
+              success: true
+              data:
+                success: true|false,
+                challenge_ts: timestamp,  // timestamp of the challenge load (ISO format yyyy-MM-dd'T'HH:mm:ssZZ)
+                hostname: string,         // the hostname of the site where the reCAPTCHA was solved
+                error-codes: "[...]        // optional"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"            
+  /account/checkAppVersion:
+    x-swagger-router-controller: accountController
+    post:
+      tags:
+      - account p'tAPP  
+      summary: 檢查APP版本
+      operationId: /account/checkAppVersion
+      parameters:
+      - in: body
+        name: body
+        description: 輸入版本資訊
+        required: true
+        schema:
+          example:
+            appName: 'doctorAPP  // 或 patientAPP'
+            version: "1.0.0"
+            bulidNumber: '1'
+            platform: "iOS  //或 android"
+      responses:
+        "200":
+          description: Success
+          schema:
+            example: 
+              success: true
+              data:
+                updateLevel: '0 //"0"版本一致不用更新, "1"建議更新, "2"強制更新'
+                nowVersion: "1.0.5  //目前版本"  
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse" 
+  /account/updateAppVersion:
+    x-swagger-router-controller: accountController
+    post:
+      tags:
+      - account p'tAPP  
+      summary: 更新APP版本
+      operationId: /account/updateAppVersion
+      parameters:
+      - in: body
+        name: body
+        description: 輸入更新版本資訊
+        required: true
+        schema:
+          example:
+            appName: 'doctorAPP  // 或 patientAPP'
+            version: "1.0.0"
+            bulidNumber: '1'
+            platform: "iOS"
+      responses:
+        "200":
+          description: Success
+          schema:
+            example: 
+              success: true
+              data:
+                n: 1
+                nModified: 1
+                ok: 1
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"                        
+#             
+#////////////////////user////////////////////
+#   
+  /user/profile:
+    x-swagger-router-controller: userController
+    post:
+      tags:
+      - user p'tAPP    
+      summary: 查詢user個人詳細資料
+      operationId: /user/profile
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 空object
+        required: true
+        schema:
+          $ref: '#/definitions/Blank'
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/user_profile_Res"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse" 
+  /user/setNotification:
+    x-swagger-router-controller: userController
+    post:
+      tags:
+      - user    
+      summary: 設定是否接受通知
+      operationId: /user/setNotification
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 輸入是否接受通知
+        required: true
+        schema:
+          example:
+            isReceiveNotification: true
+      responses:
+        "200":
+          description: Success
+          schema:
+            example:
+              success: true
+              data:
+                isReceiveNotification: true
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse" 
+  # /user/setApnToken:
+  #   x-swagger-router-controller: userController
+  #   post:
+  #     tags:
+  #     - user p'tAPP   
+  #     summary: 設定APNs的token [病人app]
+  #     operationId: /user/setApnToken
+  #     consumes:
+  #     - application/json
+  #     parameters:
+  #     - in: header
+  #       name: Authorization
+  #       type: string
+  #       description: Bearer token
+  #       required: true
+  #     - in: body
+  #       name: body
+  #       description: 輸入apnToken
+  #       required: true
+  #       schema:
+  #         example:
+  #           apnToken: "qoekdeij12dk3kdo3dl33dl3p"
+  #     responses:
+  #       "200":
+  #         description: Success
+  #         schema:
+  #           $ref: "#/definitions/SuccessResponse"
+  #       default:
+  #         description: Error
+  #         schema:
+  #           $ref: "#/definitions/ErrorResponse"             
+  /user/listEmployee:
+    x-swagger-router-controller: userController
+    post:
+      tags:
+      - user    
+      - user p'tAPP
+      summary: 列出所有員工資料 [病人app, web]
+      operationId: /user/listEmployee
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 可輸入搜尋角色(option)
+        required: false
+        schema:
+          example:
+            role: 128 //option
+            _id: 5d22a94d7c9ad06c40b4bbe8 //option 員工的_id
+            companyId: 5d3a560b23474c737cd244c1 //option
+            departmentCode: 2231 //option
+            account: fetdoctor1  //帳號
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/user_listEmployee_Res"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse" 
+  /user/listCustomer:
+    x-swagger-router-controller: userController
+    post:
+      tags:
+      - user    
+      summary: 列出所有客戶資料 [web]
+      operationId: /user/listCustomer
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 可輸入搜尋條件(option)
+        required: false
+        schema:
+          example:
+            role: 128
+            companyId: "5d269e028a442802e8a12056  //所屬醫院"
+            personalId: "C123456789"
+            mobile: "0987123456"
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/user_listCustomer_Res"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"  
+  # /user/listCompany:
+  #   x-swagger-router-controller: userController
+  #   post:
+  #     tags:
+  #     - user    
+  #     summary: 列出所有客醫院(公司)資料 [web]
+  #     operationId: /user/listCompany
+  #     consumes:
+  #     - application/json
+  #     parameters:
+  #     - in: header
+  #       name: Authorization
+  #       type: string
+  #       description: Bearer token
+  #       required: true
+  #     - in: body
+  #       name: body
+  #       description: 空object
+  #       required: true
+  #       schema:
+  #         $ref: '#/definitions/Blank'
+  #     responses:
+  #       "200":
+  #         description: Success
+  #         schema:
+  #           $ref: "#/definitions/user_listCompany_Res"
+  #       default:
+  #         description: Error
+  #         schema:
+  #           $ref: "#/definitions/ErrorResponse"  
+  /user/queryDoctor:
+    x-swagger-router-controller: userController
+    post:
+      tags:
+      - user p'tAPP    
+      summary: 依照醫院和科別列出醫生 [病人app]
+      operationId: /user/queryDoctor
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 空Object (responses= 北部:north 中部:central 南部:south 東部及離島:east)
+        required: false
+        schema:
+          $ref: '#/definitions/Blank'
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/user_queryDoctor_Res"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"              
+
+  /user/getRoleTypeList:
+    x-swagger-router-controller: userController
+    post:
+      tags:
+      - user    
+      summary: 取得權限種類列表 [web]
+      operationId: /user/getRoleTypeList
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 空Object
+        required: false
+        schema:
+          $ref: '#/definitions/Blank'
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/user_getRoleTypeList_Res"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"        
+  /user/getDepartmentList:
+    x-swagger-router-controller: userController
+    post:
+      tags:
+      - user    
+      summary: 取得所屬醫院的科別列表 [web]
+      operationId: /user/getDepartmentList
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 空Object
+        required: false
+        schema:
+          $ref: '#/definitions/Blank'
+      responses:
+        "200":
+          description: SuccessP
+          schema:
+            $ref: "#/definitions/user_getDepartmentList_Res"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse" 
+  /user/pushInviteMessage:
+    x-swagger-router-controller: userController
+    post:
+      tags:
+      - user    
+      summary: 推播通知使用者上線
+      operationId: /user/pushInviteMessage
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 輸入推播對象_id, 對象為醫生時doctorId或病人為patientId擇一, 若為直接開會議需填appointmentId
+        required: true
+        schema:
+          example:
+            isDebug: false
+            appointmentId: "5d22ab61a821c84bf4caa2c8  //若為直接開會議需填"
+            patientId: "5d22a94d7c9ad06c40b4bbea"
+            doctorId: "44d22a94d7c9ad06560b4bbe"
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/SuccessResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"    
+  /user/uploadUserPhoto:
+    x-swagger-router-controller: userController
+    post:
+      tags:
+      - user    
+      summary: 上載使用者大頭照 [web]
+      operationId: /user/uploadUserPhoto
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: multipart/form-data
+        description: 檔案路徑和使用者_id (醫生帶doctorId,或病人patientId)
+        required: true
+        schema:
+          example:
+            files: 11953588633630.jpg //檔案路徑
+            doctorId: 5d22a94d7c9ad06c40b4bbe8 //擇一
+            patientId: 5d3a560b23474c737cd244c1  //擇一
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/SuccessResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"              
+  /user/downloadUserPhoto:
+    x-swagger-router-controller: userController
+    get:
+      tags:
+      - user    
+      summary: 下載使用者大頭照  [web]
+      operationId: /user/downloadUserPhoto
+      parameters:
+        - in: header
+          name: Authorization
+          type: string
+          description: Bearer token
+          required: true
+        - in: query
+          name: filename
+          type: string
+          description: 檔案名 (924a5e-6458-4538295.png)
+          required: true
+      responses:
+        "200":
+          description: Success(檔案下載)
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"  
+  /user/sendMsgToMeetingMember:
+    x-swagger-router-controller: userController
+    post:
+      tags:
+      - user    
+      summary: 傳XMPP訊息給會議中的成員(給會議中所有成員 或給分享端PC)
+      operationId: /user/sendMsgToMeetingMember
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 輸入要傳送的msgString
+        required: true
+        schema:
+          example:
+            isToShareRole: true //true=傳訊息給分享端PC, false=傳訊息給會議中所有成員
+            msgString: "iVBORw0KGgoAAAANSUhEUgAAAQAAAARnQU1BAACxjw0YoohqVAWJIIolnb8gRYskBgiLFTsGm9R0 //base64 string"
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/SuccessResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"           
+
+#             
+#////////////////////outpatient////////////////////
+#        
+  /outpatient/list:
+    x-swagger-router-controller: outpatientController
+    post:
+      tags:
+      - outpatient
+      summary: 列出所有門診 [web]
+      operationId: /outpatient/list
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 輸入查詢條件 (病人app 需帶doctorId和companyId )
+        required: true
+        schema:
+          example:
+            queryStartTime: '2019-07-09T00:00:00.000Z //查詢門診開始的時間'
+            daysRange: 30 //查詢範圍天數
+            doctorId: 5d3a560b23474c737cd244c1  //可不提供 取得所有醫生
+            companyId: 5d8c55c232b481639c5fb25e  //醫院_id  不帶則查詢跟自己同屬醫院的資料
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/outpatient_list_Res"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"    
+  /outpatient/listWeekly:
+    x-swagger-router-controller: outpatientController
+    post:
+      tags:
+      - outpatient p'tAPP  
+      summary: 列出一周內所有門診 [病人app]
+      operationId: /outpatient/listWeekly
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 輸入查詢條件 
+        required: true
+        schema:
+          example:
+            queryStartTime: '2019-07-09T00:00:00.000Z //查詢門診開始的時間'
+            doctorId: ["5d3a560b23474c737cd244c1","5d8c55c332b481639c5fb264","5d9c49b6d7edfb4a146025f1"]  
+      responses:
+        "200":
+          description: Success, dayOfWeek between 1(Sunday) to 7(Saturday)
+          schema:
+            $ref: "#/definitions/outpatient_listWeekly_Res"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"               
+  /outpatient/retrieve:
+    x-swagger-router-controller: outpatientController
+    post:
+      tags:
+      - outpatient    
+      summary: 取得一個門診詳細資料 [web]
+      operationId: /outpatient/retrieve
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 輸入查詢條件
+        required: true
+        schema:
+          example:
+            outpatientId: "5d24449193091fb068e672b1"
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/outpatient_retrieve_Res"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"      
+  /outpatient/create:
+    x-swagger-router-controller: outpatientController
+    post:
+      tags:
+      - outpatient    
+      summary: 新增門診 [web]
+      operationId: /outpatient/create
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 輸入門診資料
+        required: true
+        schema:
+          $ref: '#/definitions/Outpatient_Create'
+      responses:
+        "200":
+          description: Success
+          schema:
+            example:
+              success: true
+              data:
+                - status: '1'
+                  _id: 5d9c49b6d7edfb4a146025f1
+                  valid: true
+                  roomCode: "0922   //診間碼"
+                  department: 皮膚科
+                  code: "A50023"
+                  numberLimit: 100
+                  doctorName: "陳可南  //門診標註醫生名"
+                  doctorIntro: "亞東醫院  皮膚科專科....//門診標註醫生簡介"
+                  startTime: '2019-07-09T07:56:00.000Z'
+                  endTime: '2019-07-09T09:00:00.000Z'
+                  doctorId: 5d3f9efad62c1f31146db48f
+                  modifyTime: '2019-10-08T08:32:54.930Z'
+                  createTime: '2019-10-08T08:32:54.930Z'
+                - status: '1'
+                  _id: 5d9c49b6d7edfb4a146025f2
+                  valid: true
+                  roomCode: "0812   //診間碼"
+                  department: 眼科
+                  code: "B50011"
+                  numberLimit: 130
+                  doctorName: "吳國棟  //門診標註醫生名"
+                  doctorIntro: "亞東醫院  眼科專科....//門診標註醫生簡介"
+                  startTime: '2019-07-19T07:56:00.000Z'
+                  endTime: '2019-07-19T09:00:00.000Z'
+                  doctorId: 5d3f9efad62c1f31146db48f
+                  modifyTime: '2019-10-08T08:32:54.930Z'
+                  createTime: '2019-10-08T08:32:54.930Z'            
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse" 
+  /outpatient/update:
+    x-swagger-router-controller: outpatientController
+    post:
+      tags:
+      - outpatient    
+      summary: 更新門診資料 [web]
+      operationId: /outpatient/update
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 輸入要更新門診資料(不變的可不提供)
+        required: true
+        schema:
+          example:
+            roomCode: "0812   //診間碼"
+            outpatientId: 5d818e90a395076cdc15831a //要更新門診的_id
+            department: 內科
+            doctorName: "吳國棟  //門診標註醫生名"
+            doctorIntro: "亞東醫院  眼科專科....//門診標註醫生簡介"
+            startTime: '2029-07-09T07:56:00.000Z'
+            endTime: '2029-07-09T09:00:00.000Z'
+            doctorId: 5d3f9efad62c1f31146db48f
+            isApplyToVHC: true  //適用於虛擬健保卡 
+            isApplyToDpay: true  //適用於DSP支付   false=不適用
+            isCounselingClinic: true  //是否為諮詢門診   false=不是諮詢門診
+            counselingPrice: 300   //若為付費諮詢門診填入價格
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/SuccessResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"            
+  /outpatient/delete:
+    x-swagger-router-controller: outpatientController
+    post:
+      tags:
+      - outpatient    
+      summary: 刪除門診 [web]
+      operationId: /outpatient/delete
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 輸入要更新門診的_id
+        required: true
+        schema:
+          example:
+            outpatientId: 5d818e90a395076cdc15831a
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/SuccessResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"               
+  /outpatient/getRoom:
+    x-swagger-router-controller: outpatientController
+    post:
+      tags:
+      - outpatient    
+      summary: 取得目前將開始的門診資訊, API_KEY, SDK_KEY和domin等
+      operationId: /outpatient/getRoom
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 輸入查詢門診科別和socketId(Option)
+        required: false
+        schema:
+          $ref: '#/definitions/Outpatient_getRoom'
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/Outpatient_getRoom_Res"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse" 
+
+  /outpatient/getRoomForShare:
+    x-swagger-router-controller: outpatientController
+    post:
+      tags:
+      - outpatient    
+      summary: 桌機Share端取得進行中的VidyoRoom資訊或Zoom meetingNumber資訊
+      operationId: /outpatient/getRoomForShare
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 空Object
+        required: false
+        schema:
+          $ref: '#/definitions/Blank'
+      responses:
+        "200":
+          description: Success
+          schema:
+            example:
+              success: true
+              data:
+                vidyoRoomUrl: "http://vd.healthplus.tw/join/DDxhIbAawu //使用vidyo時"
+                vidyoPin: "123456789 //使用vidyo時"
+                meetingNumber: "567809629"
+                ZOOM_API_KEY: GGlQERFTQQW_UtSJHKdnwQ
+                ZOOM_API_SECRET: 6kicPYdiwudNhidnx9WE$RTLtb1CrQpau02D
+                ZOOM_SDK_KEY: GgbHJmdkpwk5pMrhIl3ESERTYeOgJNOPzNlb
+                ZOOM_SDK_SECRET: RgelWbu0l1HrERTYUaiP7gnkOuRcpN16Xo0W
+                ZOOM_DOMAIN: zoom.us               
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"             
+
+  /outpatient/getConsultingDoctorList:
+    x-swagger-router-controller: outpatientController
+    post:
+      tags:
+      - outpatient    
+      summary: 取得會診醫師列表
+      operationId: /outpatient/getConsultingDoctorList
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 空Object
+        required: false
+        schema:
+          $ref: '#/definitions/Blank'
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/Outpatient_getConsultingDoctorList_Res"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse" 
+
+  /outpatient/getInviteRecord:
+    x-swagger-router-controller: outpatientController
+    post:
+      tags:
+      - outpatient    
+      summary: 取得會診邀請紀錄和未讀數量
+      operationId: /outpatient/getInviteRecord
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 空Object
+        required: false
+        schema:
+          $ref: '#/definitions/Blank'
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/Outpatient_getInviteRecord_Res"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse" 
+
+  /outpatient/readInviteRecord:
+    x-swagger-router-controller: outpatientController
+    post:
+      tags:
+      - outpatient    
+      summary: 標示已讀邀請紀錄.
+      operationId: /outpatient/readInviteRecord
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 輸入邀請記錄列表最新一筆的createTime
+        required: true
+        schema:
+          example:
+            lastCreateTime: "2019-08-22T07:10:54.294Z"
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/SuccessResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"             
+
+  /outpatient/getStatusList:
+    x-swagger-router-controller: outpatientController
+    post:
+      tags:
+      - outpatient    
+      summary: 取得門診狀態的對照表
+      operationId: /outpatient/getStatusList
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 空object
+        required: false
+        schema:
+          $ref: '#/definitions/Blank'
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/Outpatient_getStatusList_Res"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"  
+  /outpatient/getTimeType:
+    x-swagger-router-controller: outpatientController
+    post:
+      tags:
+      - outpatient p'tAPP     
+      summary: 取得門診時段種類對照表
+      operationId: /outpatient/getTimeType
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 空object
+        required: false
+        schema:
+          $ref: '#/definitions/Blank'
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/Outpatient_getTimeType_Res"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"  
+  /outpatient/cancelCalling:
+    x-swagger-router-controller: outpatientController
+    post:
+      tags:
+      - outpatient    
+      summary: 取消撥打會議.
+      operationId: /outpatient/cancelCalling
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 輸入掛號_id和status <br/> 1.門診下輸入退出status:"4"(正常結束)或"5"(過號) <br/> 2.直接會診輸入status:"9"  <br/> 3.醫病溝通結束status:"12"
+        required: true
+        schema:
+          example:
+            appointmentId: 5d283bee318179636c5ac6fe
+            status: '5   // "4":正常結束, "5":過號, "9":直接會診, "12":醫病溝通結束'
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/SuccessResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"  
+
+  /outpatient/replyInvite:
+    x-swagger-router-controller: outpatientController
+    post:
+      tags:
+      - outpatient
+      - outpatient p'tAPP     
+      summary: 回覆邀請.
+      operationId: /outpatient/replyInvite
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 輸入被邀請的meetingNumber或vidyo登入資訊和是否接受
+        required: true
+        schema:
+          example:
+            isAccept: false
+            meetingNumber: "567809629  //使用zoom時"
+            vidyoRoomUrl: "http://vd.healthplus.tw/join/DDxhIbAawu //使用vidyo時"
+            vidyoPin: "123456789 //使用vidyo時"
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/SuccessResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"  
+
+  /outpatient/end:
+    x-swagger-router-controller: outpatientController
+    post:
+      tags:
+      - outpatient    
+      summary: 通知server門診已結束
+      operationId: /outpatient/end
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 輸入門診_id
+        required: true
+        schema:
+          example:
+            outpatientId: '5d24449193091fb068e672b1'
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/SuccessResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"  
+#             
+#////////////////////appointment////////////////////
+#  
+  /appointment/create:
+    x-swagger-router-controller: appointmentController
+    post:
+      tags:
+      - appointment p'tAPP   
+      summary: 新增某門診下的掛號 [病人app]
+      operationId: /appointment/create
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 輸入病人Id與門診Id資料
+        required: true
+        schema:
+          $ref: '#/definitions/Appointment_Create'
+      responses:
+        "200":
+          description: Success
+          schema:
+            example: 
+              success: true
+              data:
+                appointmentId: 5dd7a7ce4d43613a64d81aca
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"  
+  /appointment/hospitalSyncCreate:
+    x-swagger-router-controller: appointmentController
+    post:
+      tags:
+      - appointment  
+      summary: 同步新增掛號在醫院端與自家系統 [病人app, web]
+      operationId: /appointment/hospitalSyncCreate
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 輸入病人Id與門診Id資料
+        required: true
+        schema:
+          $ref: '#/definitions/Appointment_Create'
+      responses:
+        "200":
+          description: Success
+          schema:
+            example: 
+              success: true
+              data:
+                appointmentId: 5dd7a7ce4d43613a64d81aca
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"  
+  /appointment/cancel:
+    x-swagger-router-controller: appointmentController
+    post:
+      tags:
+      - appointment p'tAPP   
+      summary: 取消掛號 [病人app]
+      operationId: /appointment/cancel
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 輸入掛號_id
+        required: true
+        schema:
+          example: 
+            appointmentId: "5d22ab180a1662a604fffaa5"
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/SuccessResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"  
+
+  /appointment/hospitalSyncCancel:
+    x-swagger-router-controller: appointmentController
+    post:
+      tags:
+      - appointment  
+      summary: 同步取消掛號在醫院端與自家系統 [病人app, web]
+      operationId: /appointment/hospitalSyncCancel
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 輸入掛號_id
+        required: true
+        schema:
+          example: 
+            appointmentId: "5d22ab180a1662a604fffaa5"
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/SuccessResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"  
+
+  /appointment/get:
+    x-swagger-router-controller: appointmentController
+    post:
+      tags:
+      - appointment    
+      summary: 取得某門診的掛號列表 [app, web]
+      operationId: /appointment/get
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 輸入門診Id
+        required: true
+        schema:
+          $ref: '#/definitions/Appointment_Get'
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/Appointment_Get_Res"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /appointment/update:
+    x-swagger-router-controller: appointmentController
+    post:
+      tags:
+      - appointment    
+      summary: 更新掛號與會診資料(加入虛擬健保卡Token, 病人身分證號, QRCode字串) [app, web]
+      operationId: /appointment/update
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 輸入門診Id和病人身分證號或虛擬健保卡Token
+        required: true
+        schema:
+          example: 
+            appointmentId: 5d54b65b5c15d50ff4cf9071
+            VHCToken: GM3MzdjZDI0N....GMwIiwiY29tcGFueUlk  //虛擬健保卡Token (Option)
+            patientPID: A232345678 //病人身分證號 (Option)
+            patientQRCodeData": "ABHYT4567GFGY224r56yy7 //QRCode (Option)"
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/SuccessResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"            
+  /appointment/retrieve:
+    x-swagger-router-controller: appointmentController
+    post:
+      tags:
+      - appointment p'tAPP    
+      summary: 取得單一掛號詳細資料 [app, 病人app]
+      operationId: /appointment/retrieve
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 輸入掛號Id
+        required: true
+        schema:
+          example: 
+            appointmentId: "5d983961fb42885e0c53b546"
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/Appointment_retrieve_Res"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /appointment/patientGet:
+    x-swagger-router-controller: appointmentController
+    post:
+      tags:
+      - appointment p'tAPP   
+      summary: 病人取得個人門診掛號資訊 [病人app]
+      operationId: /appointment/patientGet
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 空object
+        required: true
+        schema:
+          $ref: '#/definitions/Blank'
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/Appointment_PatientGet_Res"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /appointment/getConsultingRecords:
+    x-swagger-router-controller: appointmentController
+    post:
+      tags:
+      - appointment
+      summary: 取得會議紀錄 [web]
+      operationId: /appointment/getConsultingRecords
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 輸入查詢條件
+        required: true
+        schema:
+          example:
+            queryStartTime: '2019-07-09T00:00:00.000Z //查詢開始的時間'
+            daysRange: 30 //查詢範圍天數
+            isShowNoFile: true  //true=顯示無檔案之紀錄 
+            doctorId: 5d3a560b23474c737cd244c1  //可不提供 取得所有醫生
+            companyId: 5d8c55c232b481639c5fb25e  //醫院_id  不帶則查詢跟自己同屬醫院的資料
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/Appointment_getConsultingRecords_Res"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+  /appointment/queryProgress:
+    x-swagger-router-controller: appointmentController
+    post:
+      tags:
+      - appointment p'tAPP   
+      summary: 查詢看診進度 [病人app]
+      operationId: /appointment/queryProgress
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 輸入要查詢的門診_id
+        required: true
+        schema:
+          example: 
+            outpatientId: "5d24449193091fb068e672b1"
+      responses:
+        "200":
+          description: Success  <br/> nowNumber目前號次<br/>nextNumber下一位
+          schema:
+            example:
+              success: true
+              data:
+                nowNumber: 3
+                nextNumber: 4
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse" 
+  /appointment/queryRecords:
+    x-swagger-router-controller: appointmentController
+    post:
+      tags:
+      - appointment p'tAPP   
+      summary: 查詢掛號紀錄 [病人app]
+      operationId: /appointment/queryRecords
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 空object
+        required: true
+        schema:
+          $ref: '#/definitions/Blank'
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/Appointment_queryRecords_Res"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+  /appointment/getStatusList:
+    x-swagger-router-controller: appointmentController
+    post:
+      tags:
+      - appointment    
+      summary: 取得掛號狀態的對照表
+      operationId: /appointment/getStatusList
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 空object
+        required: false
+        schema:
+          $ref: '#/definitions/Blank'
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/Appointment_getStatusList_Res"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"   
+
+  /appointment/getRecordingUrl:
+    x-swagger-router-controller: appointmentController
+    post:
+      tags:
+      - appointment    
+      summary: 取得會議影片下載連結 [web]
+      operationId: /appointment/getRecordingUrl
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 輸入 ZOOM:會議number和開始時間  Vidyo:appointmentId
+        required: true
+        schema:
+          example: 
+            meetingNumber: "614363402 //zoom時需填"
+            startTime: "2020-01-21T02:11:55.000Z  //zoom時需填"
+            appointmentId: "6038b7a43d20cc1ffdfd299c //vidyo時需填"
+      responses:
+        "200":
+          description: Success
+          schema:
+            example: 
+              success: true
+              data: 
+                - "http://61.56.222.3:3003/recording/downloadVideo?filepath=/opt/zoom/cmr-storage/replay/2020/01/21/614363402/ECA52817-BC98-4E8A-B2AA-B449E6C74FA3/GMT20200121-021018_FET_2020-01-21T02-11-54-523Z_640x360.mp4"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+  /appointment/inviteMeeting:
+    x-swagger-router-controller: appointmentController
+    post:
+      tags:
+      - appointment    
+      summary: 邀請進入Vidyo或Zoom meeting (取得vidyo資訊或meetingNumber)
+      operationId: /appointment/inviteMeeting
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 1.邀請病患門診:appointmentId, <br/>2.門診中邀請會診醫生:userId和meetingNumber或vidyo資訊, <br/>3.無門診情況邀請會診醫生:userId
+        required: true
+        schema:
+          example:
+            vidyoRoomUrl: "http://vd.healthplus.tw/join/AgiBYwtsCp  //使用vidyo時"
+            vidyoPin: "123456789   //使用vidyo時"
+            meetingNumber: "459926531  //使用zoom時"
+            userId: 5d22a94d7c9ad06c40b4bbea
+            appointmentId: "5d54b65b5c15d50ff4cf9071"
+      responses:
+        "200":
+          description: Success
+          schema:
+            example:
+              success: true
+              data:
+                appointmentId: "5d8c699b8762093ccc0cdb55 //直接會診時會提供"
+                meetingNumber: "340904987"   
+                vidyoRoomUrl: "http://vd.healthplus.tw/join/AgiBYwtsCp  //使用vidyo時"
+                vidyoPin: "123456789   //使用vidyo時"        
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"             
+
+  /appointment/kickOutMeeting:
+    x-swagger-router-controller: appointmentController
+    post:
+      tags:
+      - appointment    
+      summary: 要求所有人退出該Zoom meeting
+      operationId: /appointment/kickOutMeeting
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 輸入掛號_id和status <br/> 1.門診下輸入退出status:"4"(正常結束)或"5"(過號) <br/> 2.直接會診輸入status:"9"  <br/> 3.醫病溝通結束status:"12"
+        required: true
+        schema:
+          example:
+            appointmentId: 5d283bee318179636c5ac6fe
+            status: '5   // "4":正常結束, "5":過號, "9":直接會診, "12":醫病溝通結束'
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/SuccessResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"  
+
+  /appointment/updateStatus:
+    x-swagger-router-controller: appointmentController
+    post:
+      tags:
+      - appointment    
+      summary: 更新病人掛號狀態 
+      operationId: /appointment/updateStatus
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 輸入掛號的_id與掛號狀態
+        required: true
+        schema:
+          example:
+            status: '4'
+            appointmentId: 5d22ab180a1662a604fffaa5
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/SuccessResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"  
+  /appointment/createConsultingAppointment:
+    x-swagger-router-controller: appointmentController
+    post:
+      tags:
+      - appointment    
+      summary: 建立病人會診掛號 
+      operationId: /appointment/createConsultingAppointment
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 1.FET系統用:輸入掛號的時間, companyCode, doctorId或departmentCode 與 patientId或patientPID <br/>2.客製用:輸入掛號的時間, 病人身分證與醫院資料
+        required: true
+        schema:
+          example:
+            appointmentDate: '2020-04-26T16:00:00.000Z //掛號時間'
+            companyCode: "KMUH //醫院代碼 必填"
+            waitNo: 2 //病患等候順序
+            patientHospital: 大武衛生所 //病人所屬醫院(掛號來源)
+            patientId: 5e8be720fecc577901787f22 //病人的_id
+            doctorId: 5e8beb0cfecc577901789172 //主治醫生的_id
+            departmentCode: "A123 //科別代號"
+            companyId: 5d19a38486261d7d004c4f3d  //所屬單位_id
+            patientPID: B123456714  //病人身分證
+            room: 2345 //診間號
+            mrno: 634567 //病例號
+            patientChName: 陳小明  //亞東用
+            patientMobile: 09123344555   //亞東用
+            suggestTime: "08:30   //亞東用"
+            telemedicineType: "1  //亞東用 0:會診門診 1:遠距診門診" 
+            kmuh_hospital: KMUH
+            kmuh_doctorId: D10001
+            kmuh_deptCode: '5024'
+            kmuh_noonNo: '0'
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/SuccessResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"  
+  /appointment/cancelConsultingAppointment:
+    x-swagger-router-controller: appointmentController
+    post:
+      tags:
+      - appointment    
+      summary: 取消病人會診掛號 
+      operationId: /appointment/cancelConsultingAppointment
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 輸入掛號的時間, companyCode, doctorId或departmentCode 與 patientId或patientPID 
+        required: true
+        schema:
+          example:
+            appointmentDate: '2020-04-26T16:00:00.000Z //掛號時間'
+            companyCode: "KMUH //醫院代碼 必填"
+            doctorId: 5e8beb0cfecc577901789172 //主治醫生的_id
+            departmentCode: "A123 //科別代號"
+            patientId: 5e8be720fecc577901787f22 //病人的_id
+            patientPID: B123456714  //病人身分證
+            room: 2345 //診間號 (可選)
+            mrno: 634567 //病例號 (可選)
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/SuccessResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"              
+  /appointment/getConsultingAppointment:
+    x-swagger-router-controller: appointmentController
+    post:
+      tags:
+      - appointment    
+      summary: 查詢病人會診掛號 
+      operationId: /appointment/getConsultingAppointment
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 1.FET系統用:輸入要查詢的doctorId與掛號的時間 <br/>2.客製用:輸入掛號時間與醫院資料
+        required: true
+        schema:
+          example:
+            doctorId: 5e8beb0cfecc577901789172 //主治醫生的_id
+            appointmentDate: '2020-04-26T16:00:00.000Z //掛號時間'
+            companyId: 5d19a38486261d7d004c4f3d  //所屬單位_id
+            patientPID: A123456711 //病患身分證
+            room: 2345 //診間號
+            mrno: 634567 //病例號 
+            kmuh_hospital: KMUH
+            kmuh_doctorId: D10001
+            kmuh_deptCode: '5024'
+            kmuh_noonNo: '0'
+      responses:
+        "200":
+          description: Success
+          schema:
+            example:
+              success: true
+              data:
+                - _id: 5ea6a06dc9bd713cac1f0d47
+                  waitNo: 2 //病患等候順序
+                  patientHospital: 大武衛生所 //病人所屬醫院(掛號來源)
+                  patientId: "5d22a94d7c9ad06c40b4bbec"
+                  doctorId: "5d22a94d7c9ad06c40b4bbe8"
+                  patientPID: A123456711
+                  appointmentDate: '2020-04-27T01:00:00.000Z'
+                  room: 2345 //診間號
+                  mrno: 634567 //病例號 
+                  patientChName: 王大明  //亞東用
+                  patientMobile: 09123344555   //亞東用
+                  suggestTime: "08:30   //亞東用"
+                  telemedicineType: "1  //亞東用 0:會診門診 1:遠距診門診" 
+                  kmuh_hospital: KMUH
+                  kmuh_doctorId: D10001
+                  kmuh_deptCode: '5024'
+                  kmuh_noonNo: '0'
+                  modifyTime: '2020-04-27T09:05:49.741Z'
+                  createTime: '2020-04-27T09:05:49.741Z'
+                - _id: 5ea6a072c9bd713cac1f0d48
+                  waitNo: 3 //病患等候順序
+                  patientHospital: 關山衛生所
+                  patientId: "5d22a94d7c9ad06c40b4b315"
+                  doctorId: "5d22a94d7c9ad06c40b4bbe8"
+                  patientPID: B123456712
+                  appointmentDate: '2020-04-27T01:00:00.000Z'
+                  room: 2345 //診間號
+                  mrno: 634567 //病例號 
+                  patientChName: 古莫里  //亞東用
+                  patientMobile: 09123344555   //亞東用
+                  suggestTime: "08:30   //亞東用"
+                  telemedicineType: "1  //亞東用 0:會診門診 1:遠距診門診"                   
+                  kmuh_hospital: KMUH
+                  kmuh_doctorId: D10001
+                  kmuh_deptCode: '5024'
+                  kmuh_noonNo: '0'
+                  modifyTime: '2020-04-27T09:05:54.947Z'
+                  createTime: '2020-04-27T09:05:54.947Z'
+                - _id: 5ea6a076c9bd713cac1f0d49
+                  waitNo: 4 //病患等候順序
+                  patientHospital: 關山衛生所
+                  patientId: "5d22a94d7c9ad06c40b4a46b"
+                  doctorId: "5d22a94d7c9ad06c40b4bbe8"
+                  patientPID: A123456714
+                  appointmentDate: '2020-04-27T01:00:00.000Z'
+                  room: 2345 //診間號
+                  mrno: 634567 //病例號 
+                  patientChName: 陳小明  //亞東用
+                  patientMobile: 09123344555   //亞東用
+                  suggestTime: "08:30   //亞東用"
+                  telemedicineType: "1  //亞東用 0:會診門診 1:遠距診門診"                   
+                  kmuh_hospital: KMUH
+                  kmuh_doctorId: D10001
+                  kmuh_deptCode: '5024'
+                  kmuh_noonNo: '0'
+                  modifyTime: '2020-04-27T09:05:58.493Z'
+                  createTime: '2020-04-27T09:05:58.493Z'
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"    
+            
+#             
+#////////////////////communicate////////////////////
+#  
+  /communicate/getPatientFamilyList:
+    x-swagger-router-controller: communicateController
+    post:
+      tags:
+      - communicate 
+      summary: 取得病患家屬列表 
+      operationId: /communicate/getPatientFamilyList
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 空body即可
+        required: false
+        schema:
+          $ref: '#/definitions/Blank'
+      responses:
+        "200":
+          description: Success
+          schema:
+            example: 
+              success: true
+              data:
+                - familyMembers:
+                    - _id: 5d8c55c332b481639c5fb26e
+                      name: 朱佳琪
+                      mobile: '0973123456'
+                      personalId: C223456789
+                      relationship: "夫妻"
+                      isMainContact: false  //true=為主要聯絡人
+                    - _id: 5d8c55c332b481639c5fb26c
+                      name: 周小生
+                      mobile: '0977123456'
+                      personalId: B223456789
+                      relationship: "父子"
+                      isMainContact: true  //true=為主要聯絡人
+                  patient:
+                    _id: 5d22a94d7c9ad06c40b4bbea
+                    name: 周大生
+                    wardName: "骨科病房"
+                    wardCode: "C103"
+                    department: 一般外科
+                    departmentCode: SD0554
+                    personalId: '01234567890'
+                    mobile: '0981123456'
+                - familyMembers:
+                    - _id: 5d89dcd4effcec69a4ff610a
+                      name: 曹孟修
+                      relationship: "父子"
+                      mobile: '0981123456'
+                      personalId: B223456789
+                      isMainContact: true  //true=為主要聯絡人
+                  patient:
+                    _id: 5d22a94d7c9ad06c40b4bbec
+                    name: 曹小高
+                    wardName: "一般病房"
+                    wardCode: "B203"
+                    department: 一般外科
+                    departmentCode: SD0554
+                    personalId: X120596917
+                    mobile: '0909090900'
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"              
+  /communicate/getCommunicateScheduleForDoctor:
+    x-swagger-router-controller: communicateController
+    post:
+      tags:
+      - communicate 
+      summary: 醫生取得已預約溝通會議列表 
+      operationId: /communicate/getCommunicateScheduleForDoctor
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 空body即可
+        required: false
+        schema:
+          $ref: '#/definitions/Blank'
+      responses:
+        "200":
+          description: Success
+          schema:
+            example: 
+              success: true
+              data:
+                - familyMembers:
+                    - _id: 5d8c55c332b481639c5fb26e
+                      name: 朱佳琪
+                      relationship: "夫妻"
+                      isReceiveCalling: true // true=接受會議邀請
+                      isMainContact: true  //true=為主要聯絡人
+                      mobile: '0973123456'
+                    - _id: 5d8c55c332b481639c5fb26c
+                      name: 周小小
+                      relationship: "父子"
+                      isReceiveCalling: false // true=接受會議邀請
+                      isMainContact: false  //true=為主要聯絡人
+                      mobile: '0977123456'
+                  patient:
+                    _id: 6180fdac343bf0aacc804add
+                    appointmentId: 6180fdac343bf0aacc804add
+                    patientId: 5d22a94d7c9ad06c40b4bbea
+                    patientName: 周大生
+                    patientPersonalId: Q123456788
+                    patientMobile: '0981123456'
+                    wardCode: c103
+                    wardName: 骨科病房
+                    department: 一般外科
+                    departmentCode: SD0554
+                    meetingStartTime: '2021-12-08T07:50:00.000Z'
+                    meetingEndTime: '2021-12-08T08:50:00.000Z'
+                    isTimeOut: true //是否逾時  false=無逾時
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"   
+  /communicate/inviteMeeting:
+    x-swagger-router-controller: communicateController
+    post:
+      tags:
+      - communicate 
+      summary: 邀請家屬醫病溝通 
+      operationId: /communicate/inviteMeeting
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 1.直接邀請會議需輸入familyIdList和patientId  2.邀請已預約的會議需輸入appointmentId
+        required: true
+        schema:
+          example:
+            isDebug: true   //voip 需填入
+            appointmentId: "617a5e52c2f611a498817380 //在getCommunicateScheduleForDoctor API 可以取得"
+            familyIdList: "[\"5d8c55c332b481639c5fb26e\",\"5d8c55c332b481639c5fb26c\"] //病患的家屬 _id"
+            patientId: "5d22a94d7c9ad06c40b4bbea //病患的_id"
+      responses:
+        "200":
+          description: Success
+          schema:
+            example: 
+              success: true
+              data:
+                appointmentId: 618e33bc8ecee765511f757e
+                vidyoRoomUrl: https://vpc.healthplus.tw/join/d6V6YVQcD9
+                vidyoPin: '50442969336'
+                vidyoRoomID: '13019'
+                name: 王文捷
+                department: 一般外科
+                event: inviteToJoinCommunicate
+        推播內容:
+          description: 被邀請對象將收到的內容(VOIP, FCM)
+          schema:
+            example:   
+              event: 'inviteToJoinCommunicate'
+              vidyoRoomUrl: "https://vpc.healthplus.tw/join/VMxAXpEZoY"
+              vidyoPin: "23481048328"
+              vidyoRoomID: "7148"
+              name: '王文捷'
+              department: '一般外科'
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"         
+  /communicate/createReserve:
+    x-swagger-router-controller: communicateController
+    post:
+      tags:
+      - communicate 
+      summary: 預約醫病溝通 
+      operationId: /communicate/createReserve
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 輸入病患_id和預約時間
+        required: true
+        schema:
+          example:
+            isDebug: true   //iOS的APNS需填入
+            meetingStartTime: "2021-11-21T08:00:00.000Z"
+            meetingEndTime: "2021-11-21T08:00:00.000Z"
+            patientId: "5d22a94d7c9ad06c40b4bbea //病患的_id"
+      responses:
+        "200":
+          description: Success
+          schema:
+            example: 
+              success: true
+        推播內容:
+          description: 家屬將被通知的預約內容
+          schema:
+            example:   
+              event: 'scheduleToCommunication'
+              meetingStartTime: "2021-11-21T08:00:00.000Z"
+              meetingEndTime: "2021-11-21T09:00:00.000Z"
+              reserveId: 617a4b7c6a14e8a9fc44c6a4 //預約_id 回覆是否參加時需用到
+              doctorName: "王文捷"
+              patientName: "周大生"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"    
+  /communicate/removeReserve:
+    x-swagger-router-controller: communicateController
+    post:
+      tags:
+      - communicate 
+      summary: 刪除醫病溝通預約 
+      operationId: /communicate/removeReserve
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 輸入醫病溝通預約的appointmentId
+        required: true
+        schema:
+          example:
+            appointmentId: "6191c3a748eda6caf0e98455"
+      responses:
+        "200":
+          description: Success
+          schema:
+            example: 
+              success: true
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"   
+
+            
+  /communicate/getCommunicateSchedule:
+    x-swagger-router-controller: communicateController
+    post:
+      tags:
+      - communicate p'tAPP 
+      summary: 家屬取得已預約溝通會議列表  
+      operationId: /communicate/getCommunicateSchedule
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 空body即可
+        required: false
+        schema:
+          $ref: '#/definitions/Blank'
+      responses:
+        "200":
+          description: Success
+          schema:
+            example: 
+              success: true
+              data:
+                - haveReplyReserve: "true   //true:已回覆會議邀請 false:未回覆會議邀請"
+                  isReceiveCalling: "true   //false:不接受會議邀請"
+                  _id: 617a4b7c6a14e8a9fc44c6a4
+                  appointmentId:
+                    _id: 617a4b7c6a14e8a9fc44c6a2
+                    expectedStartTime: '2021-12-21T08:00:00.000Z'
+                    expectedEndTime: "2021-12-21T09:00:00.000Z"
+                    status: "1   //會議狀態參照/outpatient/getStatusList API"
+                    vidyoPin : 75679315648
+                    vidyoRoomID : 12278
+                    vidyoRoomUrl : "https://vpc.healthplus.tw/join/m81rirNMDP  //會議狀態為進行中和結束才會有vidyo連結"
+                  patientId:
+                    _id: 5d22a94d7c9ad06c40b4bbea
+                    name: 周大生
+                  doctorId:
+                    _id: 5d3a560b23474c737cd244c1
+                    name: 王文捷
+                    department: 一般外科
+                - haveReplyReserve: "true   //true:已回覆會議邀請 false:未回覆會議邀請"
+                  isReceiveCalling: "false   //false:不接受會議邀請"
+                  _id: 617a4b7c6a14e8a9fc44c6a4
+                  appointmentId:
+                    _id: 617a4b7c6a14e8a9fc44c6a2
+                    expectedStartTime: '2021-12-30T08:00:00.000Z'
+                    expectedEndTime: "2021-12-30T09:00:00.000Z"
+                    status: "2   //會議狀態參照/outpatient/getStatusList API"
+                  patientId:
+                    _id: 5d22a94d7c9ad06c40b4bbea
+                    name: 周小惠
+                  doctorId:
+                    _id: 5d3a560b23474c737cd244c1
+                    name: 王文捷
+                    department: 一般外科                     
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"   
+  /communicate/replyReserve:
+    x-swagger-router-controller: communicateController
+    post:
+      tags:
+      - communicate p'tAPP 
+      summary: 家屬回覆是否參加醫生預約的醫病溝通 
+      operationId: /communicate/replyReserve
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 輸入預約的_id和是否接受會議邀請
+        required: true
+        schema:
+          example:
+            reserveId: "6180fdac343bf0aacc804adf   //推播時取得或getCommunicateSchedule API取得的_id "
+            isReceiveCalling: "true //false:不接受會議邀請"
+      responses:
+        "200":
+          description: Success
+          schema:
+            example: 
+              success: true
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"                             
+
+# TODO:
+#             
+#////////////////////familyMember////////////////////
+# 
+  /familyMember/list:
+    x-swagger-router-controller: familyMemberController
+    post:
+      tags:
+      - familyMember    
+      summary: 根據customerID，列出該病患的家族成員表。未輸入則列出所有customer家族成員表。 [web]
+      operationId: /familyMember/list
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 可輸入搜尋條件(option)
+        required: false
+        schema:
+          example:
+            customerID: "61c58ad4250b0e0fbcd132ad //(option)病患ID"
+      responses:
+        "200":
+          description: Success
+          schema:
+            example: 
+              success: true
+              data:
+                - _id: 5e7c5265f6082526e0686d44
+                  customerID: 61c58ad4250b0e0fbcd132ad
+                  memberList: 
+                    - isMainContact: false
+                      customerID: 61c58ad4250b0e0fbcd132b5
+                      relationship: "100 //字串，POST /getRelationshipType取得對應表"
+                    - isMainContact: true
+                      customerID: 61c58ad4250b0e0fbcd132be
+                      relationship: "50 //字串，POST /getRelationshipType取得對應表"             
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"   
+  /familyMember/create:
+    x-swagger-router-controller: familyMemberController
+    post:
+      tags:
+      - familyMember    
+      summary: 建立病患與家族成員關係 [web]
+      operationId: /familyMember/create
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 輸入病患與家族成員資訊及關係(欄位皆必填，至少一組memberList)。
+        required: true
+        schema:
+          example:
+            customerID: "61c58ad4250b0e0fbcd132ad //病患"
+            memberList: 
+              - customerID: "61c58ad4250b0e0fbcd132b5 //家屬"
+                relationship: "100 //該家屬對該病患是什麼關係。POST /getRelationshipType取得對應表"
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/SuccessResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse" 
+  /familyMember/update:
+    x-swagger-router-controller: familyMemberController
+    post:
+      tags:
+      - familyMember    
+      summary: 更新病患與家族成員關係 [web]
+      operationId: /familyMember/update
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 更新病患與家族成員資訊及關係(memberList至少輸入一組關係，否則無法更新)。 
+        required: true
+        schema:
+          example:
+            customerID: "61c58ad4250b0e0fbcd132ad //(必填)病患"
+            memberList: 
+              - customerID: "61c58ad4250b0e0fbcd132b5 //(option:如有要填入，則relationship也需填入)家屬"
+                relationship: "100 //(option)該家屬對該病患是什麼關係。POST /getRelationshipType取得對應表"
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/SuccessResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"  
+  /familyMember/getRelationshipType:
+    x-swagger-router-controller: familyMemberController
+    post:
+      tags:
+      - familyMember    
+      summary: 列出關係定義表 [web]
+      operationId: /familyMember/getRelationshipType
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 空object
+        required: false
+        schema:
+          $ref: '#/definitions/Blank'
+      responses:
+        "200":
+          description: Success
+          schema:
+            example: 
+              success: true
+              data:
+                "20": 
+                  zh-TW: 孫子
+                  en-US: 'grandchild'
+                "50": 
+                  zh-TW: 子女
+                  en-US: 'child'  
+                "100": 
+                  zh-TW: 姊妹
+                  en-US: 'sister'              
+                "101": 
+                  zh-TW: 兄弟
+                  en-US: 'brother'
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"  
+
+#             
+#////////////////////vitalSign////////////////////
+#      
+  /vitalSign/getLatest:
+    # binds a127 app logic to a route
+    x-swagger-router-controller: vitalSignController
+    post:
+      tags:
+      - vitalSign    
+      summary: 取得病患最新生理資訊
+      #description: Returns account token
+      # used as the method name of the controller
+      operationId: /vitalSign/getLatest
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 輸入病患_id
+        required: true
+        schema:
+          example:
+            patientId: '5d22ab180a1662a604fffaa5'
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/vitalSign_getLatest_Res"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"       
+
+#             
+#////////////////////payment////////////////////
+#      
+  /payment/startDpay:
+    x-swagger-router-controller: paymentController
+    post:
+      tags:
+      - payment    
+      summary: 取得Dpay付款連結頁 [app]
+      operationId: /payment/list
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 輸入掛號_id
+        required: true
+        schema:
+          example:
+            appointmentId: "5e7c5265f6082526e0686d44"
+      responses:
+        "200":
+          description: Success
+          schema:
+            example: 
+              success: true
+              data:
+                paymentUrl: "https://dspservice-test.fetnet.net/dpay01/authBroker/nonProfile?callerId=DSI0000067&cfgID=101632469473407  //填寫信用卡付款頁"
+                cfgID: "101631780640701    //與callbackURL回應的cfgID比對確認是同一筆交易"
+                matchCode: '05530d367719bb3516c7eb169ee081b0aed09a31   //與callbackURL回應的matchCode比對確認是同一筆交易'
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"                      
+#             
+#////////////////////department////////////////////
+#      
+  /department/list:
+    x-swagger-router-controller: departmentController
+    post:
+      tags:
+      - department    
+      summary: 列出所有科別 [web]
+      operationId: /department/list
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 空object
+        required: false
+        schema:
+          $ref: '#/definitions/Blank'
+      responses:
+        "200":
+          description: Success
+          schema:
+            example: 
+              success: true
+              data:
+                - _id: 5e7c5265f6082526e0686d44
+                  name: 耳鼻喉部
+                  code: '0654'
+                  companyId: 5e4b7a63cf2c185848bda83e
+                  modifyTime: '2020-03-26T06:57:41.087Z'
+                  createTime: '2020-03-26T06:57:41.087Z'
+                - _id: 5e7c5265f6082526e0686d45
+                  name: 皮膚部
+                  code: 0954
+                  companyId: 5e4b7a63cf2c185848bda83e
+                  modifyTime: '2020-03-26T06:57:41.098Z'
+                  createTime: '2020-03-26T06:57:41.098Z'
+                - _id: 5e7c5265f6082526e0686d46
+                  name: 眼科部
+                  code: '0554'
+                  companyId: 5e4b7a63cf2c185848bda83e
+                  modifyTime: '2020-03-26T06:57:41.102Z'
+                  createTime: '2020-03-26T06:57:41.102Z'              
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"   
+  /department/create:
+    x-swagger-router-controller: departmentController
+    post:
+      tags:
+      - department    
+      summary: 建立科別 [web]
+      operationId: /department/create
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 輸入科別相關資訊
+        required: true
+        schema:
+          example:
+            name: "眼科部"
+            code: "0554"
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/SuccessResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse" 
+  /department/update:
+    x-swagger-router-controller: departmentController
+    post:
+      tags:
+      - department    
+      summary: 更新科別 [web]
+      operationId: /department/update
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 輸入欲更新的科別相關資訊
+        required: true
+        schema:
+          example:
+            departmentId: 5e7c4e8eff94d534204d525b //必填
+            name: 眼科部
+            code: "0554"
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/SuccessResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"  
+  /department/remove:
+    x-swagger-router-controller: departmentController
+    post:
+      tags:
+      - department    
+      summary: 移除科別 [web]
+      operationId: /department/remove
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 輸入移除科別_id
+        required: true
+        schema:
+          example:
+            departmentId: 5e7c4e8eff94d534204d525b //必填
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/SuccessResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"                          
+#             
+#////////////////////zoomAccount////////////////////
+#      
+  /zoomAccount/list:
+    x-swagger-router-controller: zoomAccountController
+    post:
+      tags:
+      - zoomAccount    
+      summary: 列出所有vidyo或zoom帳號 [web]
+      operationId: /zoomAccount/list
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 空object
+        required: false
+        schema:
+          $ref: '#/definitions/Blank'
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/zoomAccount_list_Res"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"   
+  /zoomAccount/create:
+    x-swagger-router-controller: zoomAccountController
+    post:
+      tags:
+      - zoomAccount    
+      summary: 建立vidyo或zoom帳號 [web]
+      operationId: /zoomAccount/create
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 輸入vidyo或zoom相關資訊
+        required: true
+        schema:
+          example:
+            zoomAccount: "123@fareastone.com.tw  //使用vidyo可不填"
+            companyId: 5d19a38486261d7d004c4f3d
+            doctorIdUsed: 5d22a94d7c9ad06c40b4bbe8
+            expiryDate: "2025-04-21T07:52:06.149Z //可用期限"
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/SuccessResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse" 
+  /zoomAccount/update:
+    x-swagger-router-controller: zoomAccountController
+    post:
+      tags:
+      - zoomAccount    
+      summary: 更新vidyo或zoom帳號 [web]
+      operationId: /zoomAccount/update
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 輸入欲更新的vidyo或zoom相關資訊
+        required: true
+        schema:
+          example:
+            zoomAccountId: 5d8093f33dcf0d2a6cff0638 //必填
+            VIDYO_HOST: "fetTest.vidyo.io"
+            VIDYO_KEY: "7ff53efgy54rghy6ec659b621b"
+            VIDYO_APPID: "fetTest1345das.vidyo.io"
+            zoomAccount: 123@fareastone.com.tw
+            userId: QHe23rdfrrfJ4vgIAzhg
+            APIKey: frrf44RoScyCpOu4446w
+            APISecret: ngPweeKf78Erfg32gb0gcaBp4Uwwov9r4
+            SDKKey: b4kQzQ56r9oSfgttt44fYXmd3EfBJbInPI
+            SDKSecret: Xt4kI5W1FnXghwh421drbVl26uRX7tjp
+            companyId: 5d19a38486261d7d004c4f3d
+            doctorIdUsed: 5d22a94d7c9ad06c40b4bbe8
+            expiryDate: "2020-04-21T07:52:06.149Z  //可用期限"
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/SuccessResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"  
+#             
+#////////////////////company////////////////////
+#      
+  /company/list:
+    x-swagger-router-controller: companyController
+    post:
+      tags:
+      - company    
+      summary: 列出所有醫院資料 [web]
+      operationId: /company/list
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 空object列出所有 或輸入companyId或companyCode查詢
+        required: false
+        schema:
+          example:
+            companyCode: fet   
+            companyId: 5e423b4cf138b24f342ed65c  //公司_id
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/company_list_Res"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"   
+  /company/create:
+    x-swagger-router-controller: companyController
+    post:
+      tags:
+      - company    
+      summary: 建立醫院資料 [web]
+      operationId: /company/create
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 輸入醫院相關資訊
+        required: true
+        schema:
+          example:
+            code: fet   //必填
+            displayname: 遠傳電信  //必填
+            hospitalCode: "13434500013401 //醫事機構代碼" 
+            clientCode: A1001 //客戶代碼
+            fullname: 遠傳電信股份有限公司
+            address: 臺北市內湖區
+            phone: 0981818181
+            region: islands
+            accountLimit: 30  //帳號上限數
+            outpatientLimit: 13  //可開門診上限
+            isOpenAppointment: true //是否提供病患APP掛號  true=可掛號  false=不可掛號
+            isSyncAppointment: true //是否同步掛號至醫院端  true=要同步  false=不同步
+            syncAppointmentDays: 7 //自訂同步掛號天數
+            agreementURL: "http://fetagreement.com.tw   //醫院同意書連結"
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/SuccessResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse" 
+  /company/update:
+    x-swagger-router-controller: companyController
+    post:
+      tags:
+      - company    
+      summary: 更新醫院資料 [web]
+      operationId: /company/update
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 輸入欲更新的醫院相關資訊
+        required: true
+        schema:
+          example:
+            companyId: 5e423b4cf138b24f342ed65c //必填
+            code: fet   
+            displayname: 遠傳電信  
+            clientCode: A1001 //客戶代碼
+            fullname: 遠傳電信股份有限公司
+            address: 臺北市內湖區
+            phone: 0981818181
+            region: islands
+            accountLimit: 30  //帳號上限數
+            outpatientLimit: 13  //可開門診上限
+            isOpenAppointment: true //是否提供病患APP掛號  true=可掛號  false=不可掛號
+            isSyncAppointment: true //是否同步掛號至醫院端  true=要同步  false=不同步
+            syncAppointmentDays: 7 //自訂同步掛號天數
+            agreementURL: "http://fetagreement.com.tw   //醫院同意書連結"
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/SuccessResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"  
+  /company/listServiceGroup:
+    x-swagger-router-controller: companyController
+    post:
+      tags:
+      - company    
+      summary: 列出所有群組資料 [web]
+      operationId: /company/listServiceGroup
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 空object
+        required: false
+        schema:
+          $ref: '#/definitions/Blank'
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/company_listServiceGroup_Res"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"   
+  /company/listCompanyOfServiceGroup:
+    x-swagger-router-controller: companyController
+    post:
+      tags:
+      - company    
+      summary: 列出所有所屬群組內的醫院 [web]
+      operationId: /company/listCompanyOfServiceGroup
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 空object
+        required: false
+        schema:
+          $ref: '#/definitions/Blank'
+      responses:
+        "200":
+          description: Success
+          schema:
+            example: 
+              success: true
+              data:
+                - _id: 5e4b7a63cf2c185848bda83e
+                  companyName: 高雄醫院
+                  companyCode: kmuh
+                - _id: 5d19a38486261d7d004c4f3d
+                  companyName: 遠傳電信
+                  companyCode: fet
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"  
+
+  /company/addToGroup:
+    x-swagger-router-controller: companyController
+    post:
+      tags:
+      - company    
+      summary: 將使用者加入服務群組 [web]
+      operationId: /company/addToGroup
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 輸入欲加入群組的employeeIds和目標群組_id
+        required: true
+        schema:
+          example: 
+            employeeIds:
+              - 5e4b971bbda3ee5afc419c76
+              - 5d3a560b23474c737cd244c3
+            serviceGroupId: 5ea0035b3d3c0966fe6d9819
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/SuccessResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse" 
+  /company/removeFromGroup:
+    x-swagger-router-controller: companyController
+    post:
+      tags:
+      - company    
+      summary: 將使用者移出服務群組 [web]
+      operationId: /company/removeFromGroup
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 輸入欲移除群組的employeeIds和目標群組_id
+        required: true
+        schema:
+          example: 
+            employeeIds:
+              - 5e4b971bbda3ee5afc419c76
+              - 5d3a560b23474c737cd244c3
+            serviceGroupId: 5ea0035b3d3c0966fe6d9819
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/SuccessResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"                                
+  /company/createServiceGroup:
+    x-swagger-router-controller: companyController
+    post:
+      tags:
+      - company    
+      summary: 建立群組(醫院) [web]
+      operationId: /company/createServiceGroup
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 輸入醫院相關資訊
+        required: true
+        schema:
+          example:
+            code: "A123 //群組代碼 不可重複且三個字元以上"  
+            displayname: "離島群組  //群組名稱"
+            meetingSystem: zoom    //選擇視訊系統  zoom或vidyo
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/SuccessResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"             
+  /company/updateServiceGroup:
+    x-swagger-router-controller: companyController
+    post:
+      tags:
+      - company    
+      summary: 更新群組資料 [web]
+      operationId: /company/updateServiceGroup
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 輸入欲更新的群組資料
+        required: true
+        schema:
+          example:
+            serviceGroupId: 5e423b4cf138b24f342ed65c //必填
+            companyIds: ["5d89dcd4effcec69a4ff6100", "5e4b7a63cf2c185848bda83e"] 
+            displayname: "離島群組"
+            meetingSystem: zoom    //選擇視訊系統  zoom或vidyo
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/SuccessResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"     
+  /company/deleteServiceGroup:
+    x-swagger-router-controller: companyController
+    post:
+      tags:
+      - company    
+      summary: 刪除群組資料 [web]
+      operationId: /company/deleteServiceGroup
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 輸入欲刪除的serviceGroupId
+        required: true
+        schema:
+          example:
+            serviceGroupId: 5e423b4cf138b24f342ed65c //必填
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/SuccessResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+#             
+#////////////////////report////////////////////
+# 
+  /report/downloadConsultingRecordsExcel:
+    x-swagger-router-controller: reportController
+    post:
+      tags:
+      - report
+      summary: 匯出會診紀錄Excel [web]
+      operationId: /report/downloadConsultingRecordsExcel
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 輸入資料範圍條件
+        required: true
+        schema:
+          example:
+            queryStartTime: '2019-07-09T00:00:00.000Z //查詢開始的時間'
+            daysRange: 30 //查詢範圍天數
+            doctorId: 5d3a560b23474c737cd244c1  //可不提供 取得所有醫生
+            companyId: 5d8c55c232b481639c5fb25e  //醫院_id  不帶則查詢跟自己同屬醫院的資料
+      responses:
+        "200":
+          description: Success(下載檔案)
+          schema:
+            $ref: "#/definitions/Appointment_getConsultingRecords_Res"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"        
+
+  /report/downloadPatientRecordsExcel:
+    x-swagger-router-controller: reportController
+    post:
+      tags:
+      - report
+      summary: 匯出病患通訊診紀錄Excel [web]
+      operationId: /report/downloadPatientRecordsExcel
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 輸入資料範圍條件
+        required: true
+        schema:
+          example:
+            queryStartTime: '2019-07-09T00:00:00.000Z //查詢開始的時間'
+            daysRange: 30 //查詢範圍天數
+            doctorId: 5d3a560b23474c737cd244c1  //可不提供 取得所有醫生
+            companyId: 5d8c55c232b481639c5fb25e  //醫院_id  不帶則查詢跟自己同屬醫院的資料
+      responses:
+        "200":
+          description: Success(下載檔案)
+          schema:
+            $ref: "#/definitions/Appointment_getConsultingRecords_Res"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"          
+
+  /report/getConsultingRecordFilesZipUrl:
+    x-swagger-router-controller: reportController
+    post:
+      tags:
+      - report
+      summary: 取得下載會診紀錄壓縮檔連結 [web]
+      operationId: /report/getConsultingRecordFilesZipUrl
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 輸入資料範圍條件
+        required: true
+        schema:
+          example:
+            queryStartTime: '2019-07-09T00:00:00.000Z //查詢開始的時間'
+            daysRange: 30 //查詢範圍天數
+            doctorId: 5d3a560b23474c737cd244c1  //可不提供 取得所有醫生
+            companyId: 5d8c55c232b481639c5fb25e  //醫院_id  不帶則查詢跟自己同屬醫院的資料
+      responses:
+        "200":
+          description: Success
+          schema:
+            example: 
+              success: true
+              data:
+                fileUrl: https://teleapi.healthplus.tw/v1.0.2/report/downloadRecordFilesZip?filename=遠傳電信_2020-08-03__1623739439448.zip
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"   
+  /report/getPatientRecordFilesZipUrl:
+    x-swagger-router-controller: reportController
+    post:
+      tags:
+      - report
+      summary: 取得下載病患紀錄壓縮檔連結 [web]
+      operationId: /report/getPatientRecordFilesZipUrl
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 輸入資料範圍條件
+        required: true
+        schema:
+          example:
+            queryStartTime: '2019-07-09T00:00:00.000Z //查詢開始的時間'
+            daysRange: 30 //查詢範圍天數
+            doctorId: 5d3a560b23474c737cd244c1  //可不提供 取得所有醫生
+            companyId: 5d8c55c232b481639c5fb25e  //醫院_id  不帶則查詢跟自己同屬醫院的資料
+      responses:
+        "200":
+          description: Success
+          schema:
+            example: 
+              success: true
+              data:
+                fileUrl: https://teleapi.healthplus.tw/v1.0.2/report/downloadRecordFilesZip?filename=遠傳電信_2020-08-03__1623739439448.zip
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"               
+            
+            
+#             
+#////////////////////middleware////////////////////
+#
+  /middleware/createAppointment:
+    x-swagger-router-controller: middlewareController
+    post:
+      tags:
+      - middleware    
+      summary: 新增掛號(醫院端) 
+      operationId: /middleware/createAppointment
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 輸入以下8個資料(必填)
+        required: true
+        schema:
+          example:
+            companyCode: FEMH       //醫院代號
+            deptCode: '0401         //科別代號'
+            noonNo: '1              //門診時段'
+            regDateTime: '2021-06-29 08:30   //門診開始時間'
+            room: '9071             //診間代號'
+            personalId: A123456789  //病人身分證
+            suggestTime: 9:50       //建議看診時間
+            remark: "預計看診時間為10:00~10:20  //開始時間備註"
+            waitNo: '23             //候診序號'
+      responses:
+        "200":
+          description: Success
+          schema:
+            example: 
+              success: true
+              data:
+                appointmentId: 5dd7a7ce4d43613a64d81aca
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"   
+
+  /middleware/cancelAppointment:
+    x-swagger-router-controller: middlewareController
+    post:
+      tags:
+      - middleware    
+      summary: 取消掛號(醫院端) 
+      operationId: /middleware/cancelAppointment
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 輸入以下六個資料(必填)
+        required: true
+        schema:
+          example:
+            companyCode: FEMH       //醫院代號
+            deptCode: '0401         //科別代號'
+            noonNo: '1              //門診時段'
+            regDateTime: '2021-06-29 08:30   //門診開始時間'
+            room: '9071             //診間代號'
+            personalId: A123456789  //病人身分證
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/SuccessResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"            
+#             
+#////////////////////log////////////////////
+#      
+  /log/getUserLogs:
+    x-swagger-router-controller: logController
+    post:
+      tags:
+      - log    
+      summary: 取得使用者活動紀錄 [web]
+      operationId: /log/getUserLogs
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 空object
+        required: false
+        schema:
+          $ref: '#/definitions/Blank'
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/log_getUserLogs_Res"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"   
+  /log/getActionType:
+    x-swagger-router-controller: logController
+    post:
+      tags:
+      - log    
+      summary: 取得活動紀錄種類 [web]
+      operationId: /log/getActionType
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 空object
+        required: false
+        schema:
+          $ref: '#/definitions/Blank'
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/log_getActionType_Res"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"   
+  /log/checkPassword:
+    x-swagger-router-controller: logController
+    post:
+      tags:
+      - log    
+      summary: 檢查是否需要變更密碼 [web]
+      operationId: /log/checkPassword
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 空object
+        required: false
+        schema:
+          $ref: '#/definitions/Blank'
+      responses:
+        "200":
+          description: Success
+          schema:
+            example: 
+              success: true
+              data:
+                needChangPassword: true //true 已超過三個月沒更新密碼
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"   
+  /log/createAppLog:
+    x-swagger-router-controller: logController
+    post:
+      tags:
+      - log    
+      summary: 紀錄APP的log [app]
+      operationId: /log/createAppLog
+      consumes:
+      - application/json
+      parameters:
+      - in: body
+        name: body
+        description: 輸入log 
+        required: true
+        schema:
+          example:
+            platform: "iOS //必填"
+            appName: "doctorAPP  //或patientAPP 必填"
+            version: "1.1.2  //必填"
+            logData: "error  //log內容 必填"
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/SuccessResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"    
+  /log/getDashboardData:
+    x-swagger-router-controller: logController
+    post:
+      tags:
+      - log    
+      summary: 取得儀錶板資料 [web]
+      operationId: /log/getDashboardData
+      consumes:
+      - application/json
+      parameters:
+      - in: body
+        name: body
+        description: 空object
+        required: false
+        schema:
+          $ref: '#/definitions/Blank'
+      responses:
+        "200":
+          description: Success
+          schema:
+            example: 
+              success: true
+              data:
+                meetingStatistics //目前會議中的資料:
+                  - _id:
+                      meetingNumber: null  //會依使用的視訊系統而定  
+                      vidyoPin: http://vd.healthplus.tw/join/BBxhIbBawt //會依使用的視訊系統而定  
+                    meetingStartTime: '2021-01-07T04:01:57.283Z'
+                    meetingDurationTime: 30425.37515
+                    userList //在會議中的人員:
+                      - _id: 5d3a560b23474c737cd244c1
+                        isInMeeting: true
+                        joinMeetingTime: '2021-01-07T04:01:57.283Z'
+                        meetingDurationTime: 30425.37515
+                        name: 王文捷
+                        isReceiveNotification: true
+                        companyName: 遠傳電信
+                        hospital: 大武衛生所
+                        department: 一般外科
+                        departmentCode: SD0554
+                      - _id: 5d22a94d7c9ad06c40b4bbe8
+                        isInMeeting: true
+                        joinMeetingTime: '2021-01-08T02:54:49.960Z'
+                        meetingDurationTime: 29052.4972
+                        name: 林良傑
+                        isReceiveNotification: true
+                        companyName: 遠傳電信
+                        hospital: 大武衛生所
+                        department: 骨科
+                        departmentCode: SD0554
+                  - _id:
+                      meetingNumber: '345211732'
+                      vidyoPin: null
+                    meetingStartTime: '2021-01-07T05:01:57.283Z'
+                    meetingDurationTime: 30425.37515
+                    userList:
+                      - _id: 5d8c55c332b481639c5fb264
+                        isInMeeting: true
+                        meetingDurationTime: 29052.4972
+                        name: 林孟傑
+                        isReceiveNotification: true
+                        companyName: (DEV)遠傳電信
+                        department: 骨科
+                onlineStatistics //在線上無會議中:
+                  - _id: 5d3a560b23474c737cd244c3
+                    name: 陳佩芳
+                    isReceiveNotification: true
+                    isInMeeting: false
+                    department: 骨科
+                    companyName: 遠傳電信
+                outpatientList  //今日門診資料:
+                  - _id:
+                      outpatientId: 5d24449193091fb068e672b1
+                      outpatientStatus: '2'
+                      outpatientStartTime: '2020-07-06T08:42:00.000Z'
+                      outpatientEndTime: '2029-11-04T15:00:00.000Z'
+                      doctorId: 5d22a94d7c9ad06c40b4bbe8
+                      doctorName: 林良傑
+                      hospital: 大武衛生所
+                      department: 骨科
+                    patientList:
+                      - patientName: 李曉明
+                        sequence: 3
+                        expectedStartTime: '2021-01-28T04:00:00.000Z'
+                      - patientName: 劉依晨
+                        sequence: 4
+                        expectedStartTime: '2021-01-28T04:00:00.000Z'
+                      - patientName: 周大生
+                        sequence: 5
+                        expectedStartTime: '2021-01-28T04:00:00.000Z'
+                todayMeetingRecords //今日已完成的會議紀錄:
+                  - _id: 5d8c1e2f75d7b1292c55d347
+                    createTime: '2021-01-28T02:33:05.647Z'
+                    meetingData: null
+                    vidyoRoomUrl: null
+                    vidyoPin: null
+                    doctorId:
+                      _id: 5d22a94d7c9ad06c40b4bbe8
+                      name: 林良傑
+                      companyId:
+                        _id: 5d19a38486261d7d004c4f3d
+                        displayname: 遠傳電信
+                      department: 骨科
+                    consultantDoctorId:
+                      - _id: 5d3a560b23474c737cd244c3
+                        name: 陳佩芳
+                        companyId:
+                          _id: 5d19a38486261d7d004c4f3d
+                          displayname: 遠傳電信
+                        department: 骨科
+                  - _id: 5d8c1c5575d7b1292c55d345
+                    createTime: '2021-01-28T02:33:05.647Z'
+                    meetingData:
+                      - _id: 5f3dde928104e95ea466b653
+                        meetingNumber: '94335025547'
+                        startTime: '2020-08-20T02:23:11.000Z'
+                    vidyoRoomUrl: null
+                    vidyoPin: null
+                    doctorId:
+                      _id: 5d22a94d7c9ad06c40b4bbe8
+                      name: 林良傑
+                      companyId:
+                        _id: 5d19a38486261d7d004c4f3d
+                        displayname: 遠傳電信
+                      department: 骨科
+                    consultantDoctorId:
+                      - _id: 5d3a560b23474c737cd244c3
+                        name: 陳佩芳
+                        companyId:
+                          _id: 5d19a38486261d7d004c4f3d
+                          displayname: 遠傳電信
+                        department: 骨科            
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"                        
+  /log/getDashboardAbnormalLog:
+    x-swagger-router-controller: logController
+    post:
+      tags:
+      - log    
+      summary: 取得異常紀錄儀錶板資料 [web]
+      operationId: /log/getDashboardAbnormalLog
+      consumes:
+      - application/json
+      parameters:
+      - in: body
+        name: body
+        description: 空object
+        required: false
+        schema:
+          $ref: '#/definitions/Blank'
+      responses:
+        "200":
+          description: Success
+          schema:
+            example: 
+              success: true
+              data:
+                todayMeetingRecords:
+                  - isMissedCall: true
+                    _id: 5d5e030e7c74fe7150aa7545
+                    launchDoctorId:
+                      _id: 5d22a94d7c9ad06c40b4bbe8
+                      name: 林良傑 //發起邀請人
+                      companyId:
+                        _id: 5d19a38486261d7d004c4f3d
+                        displayname: 遠傳電信
+                      department: 骨科
+                    invitedDoctorId:
+                      _id: 5d3a560b23474c737cd244c1
+                      name: 王文捷 //被邀請人
+                      companyId:
+                        _id: 5d19a38486261d7d004c4f3d
+                        displayname: 遠傳電信
+                      department: 一般外科
+                    meetingNumber: '518699245'
+                    createTime: '2021-01-29T05:50:54.294Z'
+                    logMsg: 視訊未接
+                  - isMissedCall: true
+                    _id: 5f27b5ab7a6de3d48873990b
+                    launchDoctorId:
+                      _id: 5e4b971bbda3ee5afc419c6e
+                      name: 王凌峰
+                      department: 耳鼻喉部
+                      companyId:
+                        _id: 5e4b7a63cf2c185848bda83e
+                        displayname: 高雄醫院
+                    vidyoRoomUrl: 'http://vd.healthplus.tw/join/BBxhIbBawt'
+                    vidyoPin: '7859008465'
+                    invitedDoctorId:
+                      _id: 5d3a560b23474c737cd244c3
+                      name: 陳佩芳
+                      companyId:
+                        _id: 5d19a38486261d7d004c4f3d
+                        displayname: 遠傳電信
+                      department: 骨科
+                    createTime: '2021-01-29T05:50:54.294Z'
+                    logMsg: 視訊未接              
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"                
+            
+#             
+#////////////////////meeting////////////////////
+#          
+  /meeting/downloadVideo:
+    x-swagger-router-controller: meetingController
+    get:
+      tags:
+      - meeting    
+      summary: 下載會議記錄影片 (停用)
+      operationId: /meeting/downloadVideo
+      parameters:
+        - in: query
+          name: filepath
+          type: string
+          description: 檔案路徑
+          required: true
+      responses:
+        "200":
+          description: Success(檔案下載)
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"            
+  /meeting/createMeeting:
+    x-swagger-router-controller: meetingController
+    post:
+      tags:
+      - meeting    
+      summary: 測試用!!取得新的Zoom Number
+      operationId: /meeting/createMeeting
+      consumes:
+      - application/json
+      parameters:
+      - in: header
+        name: Authorization
+        type: string
+        description: Bearer token
+        required: true
+      - in: body
+        name: body
+        description: 空body即可
+        required: false
+        schema:
+          $ref: '#/definitions/Blank'
+      responses:
+        "200":
+          description: Success    (data.id為Zoom Number)
+          schema:
+            $ref: "#/definitions/CreateMeetingRes"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"     
+  
+            
+  /swagger:
+    x-swagger-pipe: swagger_raw
+#//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#//////complex objects have schema definitions
+#///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+definitions:
+  #
+  # Request schema definitions
+  #
+  Blank:
+    type: object
+    
+  Account:
+    type: object
+    required:
+    - account
+    - password
+    properties:
+      account:
+        type: string
+        example: fetadmin
+      password:
+        type: string
+        example: 8bb7a1cfcdb74139b159e1d1d4f33dbcce03439b73f9c26a973eb8f0
+      voipToken:
+        type: string
+        example: dhytg3frg56ny6jn65vtbh6h  //iOS的APP填入
+      apnToken:
+        type: string
+        example: h83f3frg56ny6jn65vtbh6h  //iOS的APP填入
+      fcmToken:
+        type: string
+        example: wr43rfrg56ny6h6h76yhjk889  //Android的APP填入
+      role:
+        type: string
+        example: share //登入桌面分享端的須輸入
+  AccountGetErrorList:
+    example:
+      success: true
+      data:
+        errorList:
+          '10010': token expired
+          '10011': refresh token expired
+          '10020': token error
+          '10030': login first please
+          '10040': account or password not match
+          '10041': this account is repeatedly login
+          '10050': permission denied error
+          '30010': parameter is missing or malformed
+          '30020': no message data
+          '50010': create data failed
+          '50011': update data failed
+          '50020': data exists(unique)
+          '50030': data not found
+          '50031': the outpatient not found
+          '50040': the client is off line
+          '50050': user repeat appointment
+          '50060': zoom response error
+          '50061': No zoom account available
+          '50062': No live meeting room
+          '50063': User is in a meeting
+          '99999': internal server error
+  Outpatient_Create:
+    example:
+      outpatientList:
+        - department: 皮膚科
+          roomCode: "0812   //診間碼"
+          numberLimit: 100
+          doctorName: "陳可南  //門診標註醫生名"
+          doctorIntro: "亞東醫院  皮膚科專科....//門診標註醫生簡介"
+          startTime: '2019-07-09T07:56:00.000Z'
+          endTime: '2019-07-09T09:00:00.000Z'
+          doctorId: 5d3f9efad62c1f31146db48f
+          isApplyToVHC: true  //適用於虛擬健保卡
+          isApplyToDpay: true  //適用於DSP支付   false=不適用
+          isCounselingClinic: true  //是否為諮詢門診   false=不是諮詢門診
+          counselingPrice: 300   //若為付費諮詢門診填入價格
+        - department: 眼科
+          roomCode: "0912   //診間碼"
+          numberLimit: 130
+          doctorName: "吳國棟  //門診標註醫生名"
+          doctorIntro: "亞東醫院  眼科專科....//門診標註醫生簡介"
+          startTime: '2019-07-19T07:56:00.000Z'
+          endTime: '2019-07-19T09:00:00.000Z'
+          doctorId: 5d3f9efad62c1f31146db48f
+          isApplyToVHC: false  //不適用於虛擬健保卡
+          isApplyToDpay: true  //適用於DSP支付   false=不適用
+          isCounselingClinic: false  //是否為諮詢門診  若非諮詢門診不須填counselingPrice
+  Outpatient_getRoom:
+    example:
+      department: '內科'
+      socketId: "wed3454edft6544y //回報client在線上"
+  Appointment_Create:
+    example:  
+      patientId: "5d22a94d7c9ad06c40b4bbea"
+      outpatientId: "5d1dbea71e1629b1c0770286"
+  Appointment_Get:
+    example:  
+      outpatientId: "5d2444eca2b6a894e43a21da" 
+  #
+  # Response schema definitions
+  #
+  SuccessResponse:
+    example:
+      success: true
+
+  ErrorResponse:
+    example:
+      success: false
+      data: null
+      errors:
+        doctorId:
+          message: id不能為空
+        startTime:
+          message: date不能為空
+      code: '30010'
+      message:
+        en-US: "parameter is missing or malformed"
+        zh-TW: "輸入參數缺失或格式錯誤"
+
+  AccountLoginRes:
+    example:
+      success: true
+      data:
+        token: eyJhbGciOiJSUzUxMiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI1ZDBiMWFkODAzOWYzZDJkNjBmNmNjNjgiLCJyb2xlIjpbNDA5Nl0sIm5hbWUiOiJTSSar7r5qVAAWMLDn7UQlMhwo9i8v4ijs5A7JK0SW6t7WTp7Jo1kRlTDSENfRgb003CHZCZVJrH5qiFKqXckP8MT0n1s2Zf9nPPzrmLYD9k3adwiE
+        refreshToken: eyJhbGciOiJSUzUxMiIsInR5cCI6IkpXVCJ9.eyJhY2NvdW50SWQiOiI1ZDBiMWFkODAzOWYzZDJkNjBmNmNjNjciLCJpYXQiOjE1NjE0Mjc5NzqRufaF5iKQXaPg_uiUuQ_ZUYr8p_TWOhdC7K8EaHg41oUqLEFIl2NE
+        tokenExpireIn: 4h
+        meetingSystem: zoom    //zoom 或 vidyo (此帳號使用的視訊系統)
+        user:
+          _id: 5d0b1ad8039f3d2d60f6cc68
+          name: 林良傑
+          code: fet_adm
+          role: [4096]
+          companyId: "5d19a38486261d7d004c4f3d"
+          hospitalCode: "112221234567"
+          department: "骨科"
+          departmentCode: 0554C
+          isReceiveNotification: true
+          personalId: "F123456789"
+          mobile: "0987123456"
+          birthday: "1999-05-24"
+  AccountRefreshTokenRes:
+    example:
+      success: true
+      data:
+        token: eyJhbGciOiJSUzUxMiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI1ZDBiMWFkODAzOWYzZDJkNjBmNmNjNjgiLCJyb2xlIjpbNDA5Nl0sIm5hbWUiOiJTSSBBZG1pkcyf9_gCLR2hF2oJy9FdG-ZwZUt0Ccx7P7z2xh36bwGjE67HP9oGTRnneXUudm2igqOcLp2M3IWx7Z2xPAbVJWc
+        tokenExpireIn: 4h
+        user:
+         _id: 5d0b1ad8039f3d2d60f6cc68
+         name: SI Admin
+         code: fet_adm
+         role: [4096]
+         companyId: 5d19a38486261d7d004c4f3d
+         isReceiveNotification: false
+ 
+  CreateMeetingRes:
+    example:
+      success: true
+      data:
+        uuid: YZzELHE+R3+/CHKWJeRKGA==
+        id: 181336165
+        host_id: snLQAGKIR8eHHXh3vUV8cw
+        topic: Test
+        type: 1
+        status: waiting
+        timezone: Asia/Taipei
+        agenda: rico test
+        created_at: '2019-07-10T08:33:03Z'
+        start_url: 'https://zoom.us/s/181336165?zak=eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJjbGllbnQiLCJ1aWQiOiJzbkxRQUdLSVI4ZUhIWGgzdlVWOGN3IiwiaXNzIjoid2ViIiwic3R5IjoxLCJ3Y2QiOiJhdzEiLCJjbHQiOjAsInN0ayI6InRtUkd5X0RmNjNpZnhmU1lkLTFWeFFiZkFmN1VuajFaSTdXS3lQNm5iX0EuRWdJQUFBRnIyd085ZUFBQUhDQWdhMmt4YjFwdWNVNTVRM0U0Y1VWVFVqUjBjVW93U2xaQlYxZEZSMkZWVUd3QURETkRRa0YxYjJsWlV6TnpQUU5oZHpFIiwiZXhwIjoxNTYyNzU0NzgzLCJpYXQiOjE1NjI3NDc1ODMsImFpZCI6InlzcUNkYlI2VE9Xd1hRN1dKMWJYcXciLCJjaWQiOiIifQ.-6gTqb9dMpQmYSWoNvFVDHPJ5cCx39kHqAYAN-bGVz8'
+        join_url: 'https://zoom.us/j/181336165'
+        settings:
+          host_video: true
+          participant_video: false
+          cn_meeting: false
+          in_meeting: false
+          join_before_host: true
+          mute_upon_entry: false
+          watermark: false
+          use_pmi: false
+          approval_type: 2
+          audio: voip
+          auto_recording: none
+          enforce_login: false
+          enforce_login_domains: ''
+          alternative_hosts: ''
+          close_registration: false
+          registrants_confirmation_email: true
+          waiting_room: false
+    
+  Outpatient_getRoom_Res:  
+    example:
+      success: true
+      data:
+        outpatientData:
+          status: '2   // 1:upcoming, 2:ready' 
+          _id: 5d28534e73bb9a1554119194
+          department: 內科
+          startTime: '2019-11-16T09:20:00.000Z'
+          endTime: '2019-11-16T19:35:00.000Z'
+          doctorId:
+            _id: 5d22a94d7c9ad06c40b4bbe8
+            name: Doctor 1
+            isReceiveNotification: true         
+            companyId: 
+              _id: 5d19a38486261d7d004c4f3d
+              code: "fet"
+              displayname: "遠傳電信"
+        zoomConfig:
+          ZOOM_API_KEY: GGlQERFTQQW_UtSJHKdnwQ
+          ZOOM_API_SECRET: 6kicPYdiwudNhidnx9WE$RTLtb1CrQpau02D
+          ZOOM_SDK_KEY: GgbHJmdkpwk5pMrhIl3ESERTYeOgJNOPzNlb
+          ZOOM_SDK_SECRET: RgelWbu0l1HrERTYUaiP7gnkOuRcpN16Xo0W
+          ZOOM_DOMAIN: zoom.us 
+  Outpatient_getConsultingDoctorList_Res:
+    example:
+      success: true
+      data:
+        doctorList:
+          - _id: 5d3a560b23474c737cd244c1
+            name: 王文捷
+            hospital: "大武衛生所 //醫生所屬醫院名"
+            employeeNumber: "342567"
+            kmuhData //高醫獨有資料:  
+              noonNo: '1'
+              doctorId: '1030292'
+              hospital: KMUH
+              deptCode: '0554'
+              status: done
+            department: "一般外科"
+            isOnline: false //xmpp是否有連線
+            isLogin: true //是否有登入 true=登入, false=登出
+            isReceiveNotification: true //是否接受通知
+            companyId:
+              _id: "5d19a38486261d7d004c4f3d"
+              code: "fem"
+              displayname: "高雄醫院"
+          - _id: 5d3a560b23474c737cd244c3
+            name: 陳佩芳
+            hospital: "達仁衛生所 //醫生所屬醫院名"
+            employeeNumber: "674456"
+            department: "眼科"
+            isOnline: false
+            isLogin: false
+            isReceiveNotification: true
+            companyId:
+              _id: "5d19a38486261d7d004c1eg67"
+              code: "hltz"
+              displayname: "花蓮慈濟"
+          - _id: 5d3a560b23474c737cd244a6
+            name: 張永政
+            hospital: "達仁衛生所 //醫生所屬醫院名"
+            employeeNumber: "783456"
+            department: "骨科"
+            isOnline: true
+            isLogin: true
+            isReceiveNotification: false
+            companyId:
+              _id: "5d19a38486261d7d004c1eg67"
+              code: "hltz"
+              displayname: "花蓮慈濟"
+  Outpatient_getInviteRecord_Res:
+    example:
+      success: true
+      data:
+        unReadCounts: 2
+        missedCallCounts: 1
+        inviteRecord:
+          - isMissedCall: false //true:未接電話, false:已接電話
+            isOnline: true
+            _id: 5d5e03a4ed71bb577182f57a
+            launchDoctorId:
+              _id: 5d3a560b23474c737cd244c3 //發起邀請的醫生
+              name: 陳佩芳
+              companyId: 5d19a38486261d7d004c4f3d
+              department: "一般外科"
+            invitedDoctorId:
+              _id: 5d22a94d7c9ad06c40b4bbe8 //被邀請的醫生
+              name: 林良傑
+              companyId: 5d19a38486261d7d004c4f3d
+              department: "骨科"
+            meetingNumber: "567809629"
+            createTime: '2019-08-22T06:50:54.294Z //邀請發起時間'
+          - isMissedCall: true
+            isOnline: false
+            _id: 5d5e030e7c74fe7150aa7545
+            launchDoctorId:
+              _id: 5d22a94d7c9ad06c40b4bbe8
+              name: 林良傑
+              companyId: 5d19a38486261d7d004c4f3d
+              department: "骨科"
+            invitedDoctorId:
+              _id: 5d3a560b23474c737cd244c1
+              name: 王文捷
+              companyId: 5d19a38486261d7d004c4f3d
+              department: "眼科"
+            meetingNumber: "880809629"
+            createTime: '2019-08-22T02:50:54.294Z'
+          - isMissedCall: false
+            isOnline: true
+            _id: 5d5dfdc3745ef947900c0ad8
+            launchDoctorId:
+              _id: 5d22a94d7c9ad06c40b4bbe8
+              name: 林良傑
+              companyId: 5d19a38486261d7d004c4f3d
+              department: "骨科"
+            invitedDoctorId:
+              _id: 5d3a560b23474c737cd244c1
+              name: 王文捷
+              companyId: 5d19a38486261d7d004c4f3d
+              department: "眼科"
+            meetingNumber: "130809629"
+            createTime: '2019-08-22T02:28:19.088Z'          
+
+  Outpatient_getStatusList_Res:
+    example: 
+      success: true
+      data:
+        OutPatientStatusList:
+          '1':
+            zh-TW: 即將來到
+            en-US: upcoming
+          '2':
+            zh-TW: 準備
+            en-US: ready
+          '3':
+            zh-TW: 進行中
+            en-US: living
+          '4':
+            zh-TW: 已結束
+            en-US: end    
+            
+  Appointment_Get_Res:
+    example: 
+      success: true
+      data:
+        appointmentList:
+          - status: '1'
+            isCheckIn: "true  //是否已報到  true已報到  false未報到"
+            needAuthPayment: "true  //需要授權付款  false=不需要"
+            _id: 5d22ab180a1662a604fffaa5
+            sequence: 1
+            expectedStartTime: "2019-07-09T08:00:00.000Z"
+            remark: "預計看診時間為10:00~10:20  //開始時間備註"
+            VHCToken: GM3MzdjZDI0N....GMwIiwiY29tcGFueUlk  //虛擬健保卡Token (Option)
+            patientId:
+              email: []
+              _id: 5d22a94d7c9ad06c40b4bbea
+              name: 王大明
+              personalId: A123456789
+              companyId: 5d19a38486261d7d004c4f3d
+            outpatientId: 5d2444eca2b6a894e43a21da
+            isOnline: true
+            meetingData:
+              - _id: "5e265deb5f5b472ecc1da0d0"
+                meetingNumber: "614363402"
+                startTime: "2020-01-21T02:11:55.000Z"
+              - _id: "52165deb5f5b472ecc1da0d0"
+                meetingNumber: "474363402"
+                startTime: "2020-01-21T02:11:55.000Z"
+          - status: '0'
+            isCheckIn: "false  //是否已報到  true已報到  false未報到"
+            needAuthPayment: "true  //需要授權付款  false=不需要"
+            _id: 5d22ab61a821c84bf4caa2c8
+            sequence: 2
+            expectedStartTime: "2019-07-09T08:15:00.000Z"
+            remark: "預計看診時間為10:00~10:20  //開始時間備註"
+            patientId:
+              email: []
+              _id: 5d22a94d7c9ad06c40b4bbec
+              name: 李曉明
+              personalId: B123456789
+              companyId: 5d19a38486261d7d004c4f3d
+            outpatientId: 5d2444eca2b6a894e43a21da  
+            isOnline: false
+            meetingData:
+              - _id: "57465deb5f5b472ecc1da0d0"
+                meetingNumber: "454783402"
+                startTime: "2020-01-21T02:11:55.000Z"
+  Appointment_retrieve_Res:
+    example:
+      success: true
+      data:
+        status: '5'
+        isCheckIn: "true  //是否已報到  true已報到  false未報到"
+        needAuthPayment: "true  //需要授權付款  false=不需要"
+        _id: 5d983961fb42885e0c53b546
+        patientId: 5d8c55c332b481639c5fb270
+        patientPID: A123456711
+        patientQRCodeData: "ABHYT4567GFGY224r56yy7" 
+        outpatientId:
+          status: '2'
+          signUpNumber: 0
+          numberLimit: 999
+          _id: 5d24449193091fb068e672b1
+          department: 內科
+          isApplyToVHC: "true  //是否適用於虛擬健保卡  true:適用  false:不適用"
+          isApplyToDpay: true  //適用於DSP支付   false=不適用
+          isCounselingClinic: true  //是否為諮詢門診   false=不是諮詢門診
+          counselingPrice: 300   //為付費諮詢門診價格
+          startTime: '2019-11-05T08:40:00.000Z'
+          endTime: '2019-11-04T15:00:00.000Z'
+          doctorId:
+            _id: 5d22a94d7c9ad06c40b4bbe8
+            name: 林良傑
+            companyId:
+              _id: 5d19a38486261d7d004c4f3d
+              displayname: 遠傳電信
+        sequence: 1
+        expectedStartTime: '2019-10-16T03:45:00.000Z'  
+        remark: "預計看診時間為10:00~10:20  //開始時間備註"                         
+  Appointment_PatientGet_Res:
+    example:  
+      success: true
+      data:
+        appointment:
+          - status: '1'
+            _id: 5d22ab180a1662a604fffaa5
+            sequence: 1
+            isCheckIn: "true  //是否已報到  true已報到  false未報到"
+            needAuthPayment: "true  //需要授權付款  false=不需要"
+            expectedStartTime: '2019-11-16T09:20:00.000Z'
+            remark: "預計看診時間為10:00~10:20  //開始時間備註"
+            patientId: 5d22a94d7c9ad06c40b4bbea
+            outpatientId:
+              status: '2'
+              timeType: "2 //門診時段種類"
+              _id: 5d2444eca2b6a894e43a21da
+              department: 內科
+              isApplyToVHC: "true  //是否適用於虛擬健保卡  true:適用  false:不適用"
+              isApplyToDpay: true  //適用於DSP支付   false=不適用
+              isCounselingClinic: true  //是否為諮詢門診   false=不是諮詢門診
+              counselingPrice: 300   //為付費諮詢門診價格
+              startTime: '2019-07-22T07:56:00.000Z'
+              endTime: '2019-07-22T09:00:00.000Z'
+              doctorId:
+                _id: 5d22a94d7c9ad06c40b4bbe8
+                name: 林良傑
+                companyId:
+                  _id: 5d19a38486261d7d004c4f3d
+                  displayname: 花蓮慈濟醫院
+          - status: '1'
+            _id: 5d946fed276996efead401a9
+            sequence: 1
+            isCheckIn: "true  //是否已報到  true已報到  false未報到"
+            needAuthPayment: "true  //需要授權付款  false=不需要"
+            expectedStartTime: '2019-11-17T09:20:00.000Z'
+            remark: "預計看診時間為13:00~13:20  //開始時間備註"
+            patientId: 5d22a94d7c9ad06c40b4bbea
+            outpatientId:
+              status: '2'
+              timeType: "2 //門診時段種類"
+              _id: 5d944155276996efead3d4eb
+              department: 小兒科
+              startTime: '2019-11-25T07:30:00.000Z'
+              endTime: '2019-11-25T09:00:00.000Z'
+              doctorId:
+                _id: 5d8c55c332b481639c5fb266
+                name: 王文修
+                companyId:
+                  _id: 5d8c55c232b481639c5fb25e
+                  displayname: 亞東醫院
+  Appointment_getConsultingRecords_Res:
+    example:
+      success: true
+      data:
+        vidyoAuthorization: "Basic ZV0YDFja2rtZoxcW6werzeA=   //呼叫vidyo下載連結時帶在Headers的Authorization"
+        recordsList:
+          - status: '9'
+            patientPID: A123456711 //病人身分證
+            _id: 5d8c699b8762093ccc0cdb55
+            isAcceptInviteMeeting: true  //對方是否有接聽
+            doctorId:
+              _id: 5d22a94d7c9ad06c40b4bbe8
+              name: 林良傑
+              companyId:
+                _id: 5d19a38486261d7d004c4f3d
+                displayname: 遠傳電信
+                region: islands
+              department: 骨科
+            consultantDoctorId:
+              _id: 5d3a560b23474c737cd244c3
+              name: 陳佩芳
+              companyId:
+                _id: 5d19a38486261d7d004c4f3d
+                displayname: 遠傳電信
+                region: islands
+              department: 骨科
+            createTime: '2019-09-26T07:32:43.397Z'
+            meetingData:
+              - _id: "5e265deb5f5b472ecc1da0d0"
+                meetingNumber: "614363402"
+                startTime: "2020-01-21T02:11:55.000Z"
+              - _id: "52165deb5f5b472ecc1da0d0"
+                meetingNumber: "474363402"
+                startTime: "2020-01-21T02:11:55.000Z"
+          - status: '2'
+            patientPID: F123456711
+            patientId:
+              _id: 5d22a94d7c9ad06c40b4bbec
+              name: 李曉明
+              personalId: B123456789
+            _id: 5d95bef8f13f9b3ec8dc6ef3
+            isAcceptInviteMeeting: true  //對方是否有接聽
+            doctorId:
+              _id: 5d22a94d7c9ad06c40b4bbe8
+              name: 林良傑
+              companyId:
+                _id: 5d19a38486261d7d004c4f3d
+                displayname: 遠傳電信
+                region: islands
+              department: 骨科
+            consultantDoctorId:
+              _id: 5d3a560b23474c737cd244c3
+              name: 陳佩芳
+              companyId:
+                _id: 5d19a38486261d7d004c4f3d
+                displayname: 遠傳電信
+                region: islands
+              department: 骨科
+            createTime: '2019-10-03T09:27:20.727Z'
+            meetingData: []
+  Appointment_queryRecords_Res:
+    example:
+      success: true
+      data:
+        - doctorList:
+            - doctorId: 5d8c55c332b481639c5fb266
+              department: 一般外科
+              doctorName: 王文修
+            - doctorId: 5d8c55c332b481639c5fb268
+              department: 眼科
+              doctorName: 黃雅君
+          companyId: "5d8c55c232b481639c5fb25e"
+          companyName: 高雄醫學院
+        - doctorList:
+            - doctorId: 5d3a560b23474c737cd244c1
+              department: 一般外科
+              doctorName: 王文捷
+            - doctorId: 5d22a94d7c9ad06c40b4bbe8
+              department: 骨科
+              doctorName: 林良傑
+          companyId: "5d8c55c232b481639c5fb111"    
+          companyName: 亞東醫院    
+  Appointment_getStatusList_Res:  
+    example:  
+      success: true
+      data:
+        appointmentStatusList:
+          '0':
+            zh-TW: 即將來到
+            en-US: upcoming
+          '1':
+            zh-TW: 已報到
+            en-US: registered
+          '2':
+            zh-TW: 準備
+            en-US: ready
+          '3':
+            zh-TW: 進行中
+            en-US: living
+          '4':
+            zh-TW: 已結束
+            en-US: end    
+          '5':
+            zh-TW: 過號
+            en-US: skip      
+
+  vitalSign_getLatest_Res:  
+    example:  
+      success: true
+      data:
+        latestVitalSign:
+          age: 62
+          weight: 60
+          height: 160
+          systolicBloodPressure: 120
+          diastolicBloodPressure: 80
+          heartBeat: 72
+          bodyTemperature: 36.5
+          drugAllergy: null
+          majorMedicalRecord: null
+  zoomAccount_list_Res:
+    example: 
+      success: true
+      data:
+        - _id: 5d67369708c50615680ed6af
+          VIDYO_HOST: "fetTest.vidyo.io"
+          VIDYO_KEY: "7ff53efgy54rghy6ec659b621b"
+          VIDYO_APPID: "fetTest1345das.vidyo.io"
+          zoomAccount: teleadmin11@healthplus.tw
+          userId: tC1Adu9TT46FhAd5nfF8XA
+          APIKey: JRHjPHo1RoScyCpOu1AF6w
+          APISecret: ey9LOLLpn7XUQWkuZz6nMS1csOS3kdMUbGmU
+          SDKKey: b4kQzQ56r9oSfYXmd3EfB8HbSbUN0SJbInPI
+          SDKSecret: Xt4kI5W1FnX1zB1IhHcKO13ZbVl26uRX7tjp
+          companyId:
+            _id: 5d19a38486261d7d004c4f3d
+            code: fet
+            displayname: 遠傳電信
+            fullname: 遠傳電信股份有限公司
+          doctorIdUsed:
+            _id: 5d22a94d7c9ad06c40b4bbe8
+            name: 林良傑
+            accountId:
+              _id: 5d22a94d7c9ad06c40b4bbe7
+              account: fetdoctor
+            companyId:
+              _id: 5d19a38486261d7d004c4f3d
+              code: fet
+              displayname: 遠傳電信
+              fullname: 遠傳電信股份有限公司
+          modifyTime: '2019-11-22T06:22:17.443Z'
+          createTime: '2019-08-29T02:21:11.933Z'
+        - _id: 5d67369708c50615680ed6b0
+          VIDYO_HOST: "fetTest.vidyo.io"
+          VIDYO_KEY: "7ff53efgy54rghy6ec659b621b"
+          VIDYO_APPID: "fetTest1345das.vidyo.io"
+          zoomAccount: teleadmin1@healthplus.tw
+          userId: x9DS-KUMQ5WdUj0NQQ-LFQ
+          APIKey: JRHjPHo1RoScyCpOu1AF6w
+          APISecret: ey9LOLLpn7XUQWkuZz6nMS1csOS3kdMUbGmU
+          SDKKey: b4kQzQ56r9oSfYXmd3EfB8HbSbUN0SJbInPI
+          SDKSecret: Xt4kI5W1FnX1zB1IhHcKO13ZbVl26uRX7tjp
+          companyId:
+            _id: 5d19a38486261d7d004c4f3d
+            code: fet
+            displayname: 遠傳電信
+            fullname: 遠傳電信股份有限公司
+          doctorIdUsed:
+            _id: 5d3a560b23474c737cd244c1
+            name: 王文捷
+            accountId:
+              _id: 5d3a560b23474c737cd244c0
+              account: fetdoctor2
+            companyId:
+              _id: 5d19a38486261d7d004c4f3d
+              code: fet
+              displayname: 遠傳電信
+              fullname: 遠傳電信股份有限公司
+          modifyTime: '2019-09-26T08:25:32.088Z'
+          createTime: '2019-08-29T02:21:11.947Z'
+  user_profile_Res:
+    example: 
+      success: true
+      data:
+        user:
+          role:
+            - 128
+          isReceiveNotification: true
+          isInMeeting: true
+          otherCompanyId: []
+          apnToken:
+            - 343242ff4rf4433r4311
+            - 12342wfgtredfgtr34554556111111111111
+          _id: 5d22a94d7c9ad06c40b4bbe8
+          name: 林良傑
+          code: e
+          companyId: 5d19a38486261d7d004c4f3d
+          department: 骨科
+          meetingNumber: '67890'
+          branchTag: 大武衛生所
+  user_listEmployee_Res:
+    example: 
+      success: true
+      data:
+        - role:
+            - 128
+          _id: 5d22a94d7c9ad06c40b4bbe8
+          name: 林良傑
+          photoFileName: "a644a476-83fc-4425-ba5c-8310b9bd3afb.png"
+          briefIntro: "林良傑醫師簡介"
+          accountId: 
+            _id: 5d22a94d7c9ad06c40b4bbe7
+            account: F1234
+          companyId: 5d19a38486261d7d004c4f3d
+          modifyTime: '2019-09-17T02:06:20.920Z'
+          createTime: '2019-07-08T02:24:13.038Z'
+          department: 骨科
+          appName: "doctorAPP //最新使用APP"
+          platform: "iOS //最新使用APP平台"
+          version: "1.1.5(2)  //最新使用APP版本"
+        - role:
+            - 128
+          _id: 5d3a560b23474c737cd244c1
+          name: 王文捷
+          photoFileName: "a644a476-83fc-4425-ba5c-8310b9bd3afb.png"
+          briefIntro: "王文捷醫師簡介"
+          accountId: 
+            _id: 5d3a560b23474c737cd244c0
+            account: A7234
+          companyId: 5d19a38486261d7d004c4f3d
+          modifyTime: '2019-08-30T03:13:18.228Z'
+          createTime: '2019-07-26T01:23:23.149Z'
+          department: 一般外科
+          appName: "doctorAPP //最新使用APP"
+          platform: "iOS //最新使用APP平台"
+          version: "1.1.6(2)  //最新使用APP版本"
+  user_listCustomer_Res:
+    example:
+      success: true
+      data:
+        - role:
+            - 16
+          email: 123@gmail.com
+          isReceiveNotification: true
+          isInMeeting: false
+          _id: 5d22a94d7c9ad06c40b4bbea
+          name: 王大明
+          code: c
+          personalId: A123456789
+          mobile: 0981123456
+          accountId: 5d22a94d7c9ad06c40b4bbe9
+          companyId: 5d19a38486261d7d004c4f3d
+          modifyTime: '2019-08-30T03:13:18.355Z'
+          createTime: '2019-07-08T02:24:13.139Z'
+          appName: "patientAPP //最新使用APP"
+          platform: "iOS //最新使用APP平台"
+          version: "1.2.6(2)  //最新使用APP版本"
+        - role:
+            - 16
+          email: wee@gmail.com
+          isReceiveNotification: false
+          isInMeeting: false
+          _id: 5d22a94d7c9ad06c40b4bbec
+          name: 李曉明
+          code: c
+          personalId: B123456789
+          mobile: 0987123456
+          accountId: 5d22a94d7c9ad06c40b4bbeb
+          companyId: 5d19a38486261d7d004c4f3d
+          modifyTime: '2019-08-30T03:13:18.363Z'
+          createTime: '2019-07-08T02:24:13.158Z'
+          appName: "patientAPP //最新使用APP"
+          platform: "iOS //最新使用APP平台"
+          version: "1.2.6(2)  //最新使用APP版本"
+  user_listCompany_Res:
+    example:   
+      success: true
+      data:
+        - _id: 5d19a38486261d7d004c4f3d
+          code: fet
+          displayname: 遠傳電信
+          fullname: 遠傳電信股份有限公司
+          address: 臺北市內湖區瑞光路468號
+          phone: null
+          modifyTime: '2019-10-08T05:20:42.245Z'
+          createTime: '2019-07-01T06:09:09.010Z'
+          region: islands
+        - _id: 5d89dcd4effcec69a4ff6100
+          code: fem
+          displayname: 亞東醫院
+          fullname: 亞東紀念醫院
+          address: 新北市板橋區南雅南路二段21號
+          phone: 886-2-8966-7000
+          modifyTime: '2019-10-08T05:20:02.160Z'
+          createTime: '2019-09-24T09:07:32.316Z'
+          region: north
+        - _id: 5d8c55c232b481639c5fb25e
+          code: fetdev
+          displayname: (DEV)遠傳電信
+          fullname: (DEV)遠傳電信股份有限公司
+          address: 臺北市內湖區瑞光路468號
+          modifyTime: '2019-10-08T05:21:31.998Z'
+          createTime: '2019-09-26T06:08:02.867Z'
+          region: islands         
+  user_queryDoctor_Res:
+    example:
+      success: true
+      data:
+        north:
+          - companyName: 亞東醫院
+            companyId: 5d89dcd4effcec69a4ff6100
+            departmentList:
+              - department: 新陳代謝科
+                doctorList:
+                  - doctorId: 5d89dcd4effcec69a4ff6106
+                    doctorName: 游世昌
+              - department: 急診科
+                doctorList:
+                  - doctorId: 5d89dcd4effcec69a4ff6104
+                    doctorName: 李家昇
+        central:
+          - companyName: 臺中醫院
+            companyId: 5d29dcd4effcec69a4ff3106
+            departmentList:
+              - department: 皮膚科
+                doctorList:
+                  - doctorId: 5d89dcd4effcec69a4ff6106
+                    doctorName: 王大昌
+                  - doctorId: 5d89dcd4effcec69a4ff6104
+                    doctorName: 童仲秋             
+        east:
+          - companyName: 澎湖醫院
+            companyId: 5d8c55c232b481639c5fb25e
+            departmentList:
+              - department: 眼科
+                doctorList:
+                  - doctorId: 5d944ede276996efead3e5db
+                    doctorName: 李東成
+                  - doctorId: 5d8c55c332b481639c5fb268
+                    doctorName: 黃雅君
+              - department: 一般外科
+                doctorList:
+                  - doctorId: 5d8c55c332b481639c5fb266
+                    doctorName: 王文修
+              - department: 骨科
+                doctorList:
+                  - doctorId: 5d8c55c332b481639c5fb264
+                    doctorName: 林孟傑
+          - companyName: 媽祖醫院
+            companyId: 5d19a38486261d7d004c4f3d
+            departmentList:
+              - department: 骨科
+                doctorList:
+                  - doctorId: 5d3a560b23474c737cd244c3
+                    doctorName: 陳佩芳
+                  - doctorId: 5d22a94d7c9ad06c40b4bbe8
+                    doctorName: 林良傑
+              - department: 一般外科
+                doctorList:
+                  - doctorId: 5d3a560b23474c737cd244c1
+                    doctorName: 王文捷
+  user_getRoleTypeList_Res:
+    example:
+      success: true
+      data:
+        employeeRoleList:
+          '64':
+            zh-TW: 護理師
+            en-US: nurse
+          '128':
+            zh-TW: 醫師
+            en-US: doctor
+          '256':
+            zh-TW: 組織管理員
+            en-US: Organization Manager
+          '1024':
+            zh-TW: 集團管理員
+            en-US: System Integrator
+          '4096':
+            zh-TW: 系統管理員
+            en-US: Administrator
+        customerRoleList:
+          '8':
+            zh-TW: 家屬
+            en-US: family
+          '16':
+            zh-TW: 病患
+            en-US: patient    
+  user_getDepartmentList_Res:
+    example:
+      success: true
+      data:
+        - doctorList:
+            - _id: 5d3a560b23474c737cd244c1
+              name: 王文捷
+          department: 一般外科
+        - doctorList:
+            - _id: 5d22a94d7c9ad06c40b4bbe8
+              name: 林良傑
+            - _id: 5d3a560b23474c737cd244c3
+              name: 陳佩芳
+          department: 骨科                          
+  outpatient_list_Res:
+    example:
+      success: true
+      data:
+        - status: '1'
+          valid: true
+          _id: 5d2c276c87d2ae690c49d1aa
+          department: 內科
+          roomCode: "0922"
+          startTime: '2019-07-09T07:56:00.000Z'
+          endTime: '2019-07-09T09:00:00.000Z'
+          doctorId:
+            role:
+              - 128
+            isReceiveNotification: true
+            isInMeeting: false
+            _id: 5d3a560b23474c737cd244c1
+            name: 王文捷
+            code: e
+            accountId: 5d3a560b23474c737cd244c0
+            companyId:
+              _id: 5d19a38486261d7d004c4f3d
+              code: fet
+              displayname: 遠傳電信
+              fullname: 遠傳電信股份有限公司
+            department: 一般外科
+          modifyTime: '2019-07-15T07:12:44.733Z'
+          createTime: '2019-07-15T07:12:44.733Z'
+        - status: '2'
+          valid: true
+          _id: 5d28534e73bb9a1554119194
+          department: 內科
+          roomCode: "0922"
+          startTime: '2019-11-16T09:20:00.000Z'
+          endTime: '2019-11-16T19:35:00.000Z'
+          doctorId:
+            role:
+              - 128
+            isReceiveNotification: true
+            isInMeeting: false
+            _id: 5d3a560b23474c737cd244c1
+            name: 王文捷
+            code: e
+            accountId: 5d3a560b23474c737cd244c0
+            companyId:
+              _id: 5d19a38486261d7d004c4f3d
+              code: fet
+              displayname: 遠傳電信
+              fullname: 遠傳電信股份有限公司
+            department: 一般外科
+          modifyTime: '2019-08-21T06:40:57.541Z'
+          createTime: '2019-07-12T09:30:54.603Z'
+          meetingNumber: '676696821'
+          meetingUUID: /43z6BfPQM6Y1kIkpcSw/g==         
+  outpatient_retrieve_Res:
+    example:
+      success: true
+      data:
+        status: '4'
+        valid: true
+        _id: 5d24449193091fb068e672b1
+        department: 內科
+        roomCode: "0922"
+        numberLimit: 100
+        isApplyToVHC: "true  //是否適用於虛擬健保卡  true:適用  false:不適用"
+        isApplyToDpay: true  //適用於DSP支付   false=不適用
+        isCounselingClinic: true  //是否為諮詢門診   false=不是諮詢門診
+        counselingPrice: 300   //為付費諮詢門診價格
+        startTime: '2019-08-26T03:45:00.000Z'
+        endTime: '2019-08-26T05:00:00.000Z'
+        doctorId:
+          role:
+            - 128
+          isReceiveNotification: true
+          isInMeeting: false
+          _id: 5d22a94d7c9ad06c40b4bbe8
+          name: 林良傑
+          code: e
+          accountId: 5d22a94d7c9ad06c40b4bbe7
+          companyId:
+            _id: 5d19a38486261d7d004c4f3d
+            code: fet
+            displayname: 遠傳電信
+            fullname: 遠傳電信股份有限公司
+          department: 骨科
+        modifyTime: '2019-09-05T05:35:47.423Z'
+        createTime: '2019-07-09T07:38:57.332Z'   
+  outpatient_listWeekly_Res:
+    example:  
+      success: true
+      data:
+        - clinicInfo:
+            - doctorList:
+                - _id: 5d2c276c87d2ae690c49d1aa
+                  status: '1'
+                  isFull: true //掛號額滿
+                  department: 內科
+                  isApplyToVHC: "true  //是否適用於虛擬健保卡  true:適用  false:不適用"
+                  isApplyToDpay: true  //適用於DSP支付   false=不適用
+                  isCounselingClinic: false  //是否為諮詢門診   false=不是諮詢門診
+                  counselingPrice: 0   //為付費諮詢門診價格
+                  startTime: '2019-07-09T07:56:00.000Z'
+                  endTime: '2019-07-09T09:00:00.000Z'
+                  doctorId:
+                    _id: 5d3a560b23474c737cd244c1
+                    name: 王文捷
+                    department: 一般外科
+                    companyId:
+                      _id: 5d19a38486261d7d004c4f3d
+                      displayname: 遠傳電信
+                      region: islands
+                      agreementURL: "http://fetagreement.com.tw   //醫院同意書連結"
+                - _id: 5db7d7e8e11ad39f76e66278
+                  status: '1'
+                  isFull: false
+                  department: 皮膚科
+                  isApplyToVHC: "false  //是否適用於虛擬健保卡  true:適用  false:不適用"
+                  isApplyToDpay: true  //適用於DSP支付   false=不適用
+                  isCounselingClinic: true  //是否為諮詢門診   false=不是諮詢門診
+                  counselingPrice: 300   //為付費諮詢門診價格
+                  startTime: '2019-07-09T07:56:00.000Z'
+                  endTime: '2019-07-09T09:00:00.000Z'
+                  doctorId:
+                    _id: 5d944ede276996efead3e5db
+                    name: 李東成
+                    department: 眼科
+                    companyId:
+                      _id: 5d8c55c232b481639c5fb25e
+                      displayname: (DEV)遠傳電信
+                      region: islands
+                      agreementURL: "http://fetagreement.com.tw   //醫院同意書連結"
+              timeType: "2 //門診時段種類"
+            - doctorList:
+                - _id: 5db7d7f3e11ad39f76e66281
+                  status: '1'
+                  isFull: true
+                  department: 內科
+                  isApplyToVHC: "true  //是否適用於虛擬健保卡  true:適用  false:不適用"
+                  isApplyToDpay: true  //適用於DSP支付   false=不適用
+                  isCounselingClinic: true  //是否為諮詢門診   false=不是諮詢門診
+                  counselingPrice: 300   //為付費諮詢門診價格
+                  startTime: '2019-07-09T12:56:00.000Z'
+                  endTime: '2019-07-09T15:00:00.000Z'
+                  doctorId:
+                    _id: 5d8c55c332b481639c5fb264
+                    name: 林孟傑
+                    department: 骨科
+                    companyId:
+                      _id: 5d8c55c232b481639c5fb25e
+                      displayname: (DEV)遠傳電信
+                      region: islands
+                      agreementURL: "http://fetagreement.com.tw   //醫院同意書連結"
+              timeType: "3"
+            - doctorList:
+                - _id: 5d368440c8599d5768ff81d0
+                  status: '1'
+                  isFull: false
+                  department: 內科
+                  isApplyToVHC: "true  //是否適用於虛擬健保卡  true:適用  false:不適用"
+                  isApplyToDpay: true  //適用於DSP支付   false=不適用
+                  isCounselingClinic: true  //是否為諮詢門診   false=不是諮詢門診
+                  counselingPrice: 300   //為付費諮詢門診價格
+                  startTime: '2019-07-09T01:00:00.000Z'
+                  endTime: '2019-07-09T04:00:00.000Z'
+                  doctorId:
+                    _id: 5d22a94d7c9ad06c40b4bbe8
+                    name: 林良傑
+                    companyId:
+                      _id: 5d19a38486261d7d004c4f3d
+                      displayname: 遠傳電信
+                      region: islands
+                      agreementURL: "http://fetagreement.com.tw   //醫院同意書連結"
+                    department: 骨科
+              timeType: "1"
+          dayOfWeek: 3
+          date: "2019-07-09T01:00:00.000Z"
+        - clinicInfo:
+            - doctorList:
+                - _id: 5d9c49b6d7edfb4a146025f1
+                  status: '1'
+                  isFull: false
+                  department: 皮膚科
+                  isApplyToVHC: "true  //是否適用於虛擬健保卡  true:適用  false:不適用"
+                  isApplyToDpay: true  //適用於DSP支付   false=不適用
+                  isCounselingClinic: true  //是否為諮詢門診   false=不是諮詢門診
+                  counselingPrice: 300   //為付費諮詢門診價格                  
+                  startTime: '2019-07-10T07:56:00.000Z'
+                  endTime: '2019-07-10T09:00:00.000Z'
+                  doctorId:
+                    _id: 5d8c55c332b481639c5fb264
+                    name: 林孟傑
+                    department: 骨科
+                    companyId:
+                      _id: 5d8c55c232b481639c5fb25e
+                      displayname: (DEV)遠傳電信
+                      region: islands
+                      agreementURL: "http://fetagreement.com.tw   //醫院同意書連結"
+              timeType: "2"
+          dayOfWeek: 4      
+          date: "2019-07-10T07:56:00.000Z"
+  Outpatient_getTimeType_Res:
+    example:
+      success: true
+      data:
+        timeTypeList:
+          '1':
+            zh-TW: 上午診
+            en-US: morning
+          '2':
+            zh-TW: 下午診
+            en-US: afternoon
+          '3':
+            zh-TW: 晚診
+            en-US: night
+          '4':
+            zh-TW: 其他
+            en-US: other
+
+  company_list_Res:
+    example:
+      success: true
+      data:
+        - outpatientLimit: 3
+          _id: 5d19a38486261d7d004c4f3d
+          code: fet
+          clientCode: A1001 //客戶代碼
+          hospitalCode: "13434500013401 //醫事機構代碼" 
+          displayname: 遠傳電信
+          fullname: 遠傳電信股份有限公司
+          address: 臺北市內湖區瑞光路468號
+          phone: null
+          modifyTime: '2019-10-08T05:20:42.245Z'
+          createTime: '2019-07-01T06:09:09.010Z'
+          region: islands
+          isOpenAppointment: false
+          isSyncAppointment: true
+          syncAppointmentDays: 7 //自訂同步掛號天數
+          agreementURL: "http://fetagreement.com.tw   //醫院同意書連結"
+          accountLimit: 50 //帳號上限數
+          accountUsedNumber: 13  //目前帳號使用數
+          zoomAccountData:
+            _id: 5d19a38486261d7d004c4f3d
+            usedCounts: 4 //已指定總數
+            unUsedCounts: 1  //未指定總數
+            createTime: '2019-08-29T02:21:11.933Z'
+            accountList:
+              - zoomAccount: teleadmin11@healthplus.tw
+                isExpiry: true //已過期
+                isUsed: true //已指定
+              - zoomAccount: teleadmin1@healthplus.tw
+                isExpiry: false //期限中
+                isUsed: true
+              - zoomAccount: teleadmin5@healthplus.tw
+                isExpiry: true
+                isUsed: true
+              - zoomAccount: teleadmin6@healthplus.tw
+                isExpiry: true
+                isUsed: true
+              - zoomAccount: kmuh01@healthplus.tw
+                isExpiry: true
+                isUsed: false //未指定
+        - outpatientLimit: 99999
+          _id: 5d89dcd4effcec69a4ff6100
+          code: femh
+          clientCode: B1001 //客戶代碼
+          hospitalCode: "13434500013402 //醫事機構代碼" 
+          displayname: 亞東紀念醫院
+          fullname: 亞東紀念醫院
+          address: 新北市板橋區南雅南路二段21號
+          phone: 886-2-8966-7000
+          modifyTime: '2020-02-18T05:32:28.889Z'
+          createTime: '2019-09-24T09:07:32.316Z'
+          region: north
+          isOpenAppointment: false
+          isSyncAppointment: false
+          syncAppointmentDays: 7 //自訂同步掛號天數
+          agreementURL: "http://fetagreement.com.tw   //醫院同意書連結"
+          accountLimit: 30
+          accountUsedNumber: 22
+          zoomAccountData:
+            _id: 5d8c55c232b481639c5fb25e
+            usedCounts: 2
+            unUsedCounts: 2
+            createTime: '2019-10-24T01:42:35.478Z'
+            accountList:
+              - zoomAccount: teleadmin7@healthplus.tw
+                isExpiry: true
+                isUsed: true
+              - zoomAccount: teleadmin8@healthplus.tw
+                isExpiry: true
+                isUsed: true
+              - zoomAccount: teleadmin9@healthplus.tw
+                isExpiry: true
+                isUsed: false
+              - zoomAccount: teleadmin10@healthplus.tw
+                isExpiry: false
+                isUsed: false
+
+  company_listServiceGroup_Res:   
+    example:    
+      success: true
+      data:
+        - _id: 5e534225f170ab5ef056a830
+          displayname: 台東衛生局群組
+          meetingSystem: "zoom"
+          modifyTime: '2020-02-24T05:40:10.044Z'
+          createTime: '2020-02-24T03:25:25.416Z'
+          doctorList:
+            - _id: 5d3a560b23474c737cd244c1
+              name: 王文捷
+              department: 一般外科
+              companyId:
+                _id: 5d89dcd4effcec69a4ff6100
+                code: femh
+                displayname: 亞東紀念醫院
+            - _id: 5e4b971bbda3ee5afc419c6e
+              name: 王凌峰
+              department: 耳鼻喉部
+              companyId:
+                _id: 5e4b7a63cf2c185848bda83e
+                code: kmuh
+                displayname: 高雄醫院
+        - _id: 5e53425ab35a075adce29cec
+          displayname: 高醫組
+          meetingSystem: "vidyo"
+          modifyTime: '2020-02-24T03:26:18.536Z'
+          createTime: '2020-02-24T03:26:18.536Z'
+          doctorList:
+            - _id: 5e4b971bbda3ee5afc419c6e
+              name: 王凌峰
+              department: 耳鼻喉部
+              companyId:
+                _id: 5e4b7a63cf2c185848bda83e
+                code: kmuh
+                displayname: 高雄醫院
+            - _id: 5d3a560b23474c737cd244c3
+              name: 陳佩芳
+              department: 骨科
+              companyId:
+                _id: 5d19a38486261d7d004c4f3d
+                code: fet
+                displayname: 遠傳電信 
+  company_getDepartmentList_Res:    
+    example:            
+      success: true
+      data:
+        - _id: 5e538a5e62734151780f22c4
+          departmentNameList:
+            - _id: 5e538a5e62734151780f22ca
+              code: S
+              zh_TW: 外科
+              en_US: Surgery
+            - _id: 5e538a5e62734151780f22c8
+              code: ORTHO
+              zh_TW: 骨科
+              en_US: Orthopedics
+            - _id: 5e538a5e62734151780f22c7
+              code: ENT
+              zh_TW: 耳鼻喉科
+              en_US: 'Ears, Nose, and Throat'
+          companyId:
+            _id: 5d19a38486261d7d004c4f3d
+            code: fet
+            displayname: 亞東醫院
+          modifyTime: '2020-02-24T08:33:34.043Z'
+          createTime: '2020-02-24T08:33:34.043Z'
+        - _id: 5e538aee257b1b48b8cfea9a
+          departmentNameList:
+            - _id: 5e538aee257b1b48b8cfeaa1
+              code: M
+              zh_TW: 內科
+              en_US: Medical
+            - _id: 5e538aee257b1b48b8cfea9f
+              code: GS
+              zh_TW: 一般外科
+              en_US: General Surgery
+            - _id: 5e538aee257b1b48b8cfea9b
+              code: DER
+              zh_TW: 皮膚科
+              en_US: Dermatology
+          companyId:
+            _id: 5d8c55c232b481639c5fb25e
+            code: fetdev
+            displayname: 花蓮慈濟醫院
+          modifyTime: '2020-02-24T08:35:58.155Z'
+          createTime: '2020-02-24T08:35:58.155Z'
+
+  log_getUserLogs_Res:
+    example:
+      success: true
+      data:
+        - _id: 5e8d376f01bf5e1070b2b7e5
+          action: '3'
+          employeeId: 5d22a94d7c9ad06c40b4bbe8
+          modifyTime: '2020-04-08T02:31:11.773Z'
+          createTime: '2020-04-08T02:31:11.773Z'
+        - _id: 5e8d373c01bf5e1070b2b7e4
+          action: '1'
+          employeeId: 5d22a94d7c9ad06c40b4bbe8
+          modifyTime: '2020-04-08T02:30:20.194Z'
+          createTime: '2020-04-08T02:30:20.194Z'
+        - _id: 5e8d3617b0d5bb1e8460771c
+          action: '2'
+          employeeId: 5d22a94d7c9ad06c40b4bbe8
+          modifyTime: '2020-04-08T02:25:27.902Z'
+          createTime: '2020-04-08T02:25:27.902Z'
+
+  log_getActionType_Res:
+    example:  
+      success: true
+      data:
+        actionTypeList:
+          '0':
+            zh-TW: 其他
+            en-US: other
+          '1':
+            zh-TW: 登入
+            en-US: login
+          '2':
+            zh-TW: 登出
+            en-US: logout
+          '3':
+            zh-TW: 更改密碼
+            en-US: change password  
