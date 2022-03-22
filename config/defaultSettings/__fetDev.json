@@ -1,0 +1,592 @@
+{
+  "default": [
+    {
+      "table": "company",
+      "datas": {
+        "__target": "company_admin",
+        "__targetVer": 2,
+        "data": {
+          "code": "fetdev",
+          "region": "islands",
+          "displayname": "(DEV)遠傳電信",
+          "fullname": "(DEV)遠傳電信股份有限公司",
+          "address": "臺北市內湖區瑞光路468號"
+        }
+      }
+    },
+    {
+      "table": "company",
+      "datas": {
+        "__target": "company_admin_2",
+        "__targetVer": 1,
+        "data": {
+          "code": "fetdev2",
+          "region": "islands",
+          "displayname": "(DEV2)遠傳電信",
+          "fullname": "(DEV2)遠傳電信股份有限公司",
+          "address": "臺北市內湖區瑞光路468號"
+        }
+      }
+    },
+    {
+      "table": "account",
+      "datas": {
+        "__target": "account_admin",
+        "__targetVer": 1,
+        "data": {
+          "account": "fetdevadmin",
+          "password": "123456",
+          "userType": "e",
+          "salt": null
+        }
+      }
+    },
+    {
+      "table": "employee",
+      "datas": {
+        "__target": "employee_si",
+        "__targetVer": 1,
+        "data": {
+          "name": "AdministratorDEV",
+          "code": "e",
+          "accountId": "__FK_account_admin",
+          "companyId": "__FK_company_admin",
+          "role": [4096]
+        }
+      }
+    },
+    {
+      "table": "account",
+      "datas": {
+        "__target": "account_admin_2",
+        "__targetVer": 1,
+        "data": {
+          "account": "fetdevadmin2",
+          "password": "1qaz2wsx",
+          "userType": "e",
+          "salt": null
+        }
+      }
+    },
+    {
+      "table": "employee",
+      "datas": {
+        "__target": "employee_si_2",
+        "__targetVer": 1,
+        "data": {
+          "name": "AdministratorDEV2",
+          "code": "e",
+          "accountId": "__FK_account_admin_2",
+          "companyId": "__FK_company_admin_2",
+          "role": [4096]
+        }
+      }
+    },
+    {
+      "table": "account",
+      "datas": {
+        "__target": "account_org_admin",
+        "__targetVer": 1,
+        "data": {
+          "account": "orgdevadmin",
+          "password": "123456",
+          "userType": "e",
+          "salt": null
+        }
+      }
+    },
+    {
+      "table": "employee",
+      "datas": {
+        "__target": "employee_org_admin",
+        "__targetVer": 1,
+        "data": {
+          "name": "醫院管理員DEV",
+          "code": "e",
+          "accountId": "__FK_account_org_admin",
+          "companyId": "__FK_company_admin",
+          "role": [256]
+        }
+      }
+    },
+    {
+      "table": "account",
+      "datas": {
+        "__target": "account_doctor_1",
+        "__targetVer": 1,
+        "data": {
+          "account": "fetdevdoctor",
+          "password": "123456",
+          "userType": "e",
+          "salt": null
+        }
+      }
+    },
+    {
+      "table": "employee",
+      "datas": {
+        "__target": "employee_doctor_1",
+        "__targetVer": 1,
+        "data": {
+          "name": "林孟傑",
+          "code": "e",
+          "department": "骨科",
+          "accountId": "__FK_account_doctor_1",
+          "companyId": "__FK_company_admin",
+          "role": [128]
+        }
+      }
+    },
+    {
+      "table": "account",
+      "datas": {
+        "__target": "account_doctor_2",
+        "__targetVer": 1,
+        "data": {
+          "account": "fetdevdoctor2",
+          "password": "123456",
+          "userType": "e",
+          "salt": null
+        }
+      }
+    },
+    {
+      "table": "employee",
+      "datas": {
+        "__target": "employee_doctor_2",
+        "__targetVer": 2,
+        "data": {
+          "name": "王文修",
+          "code": "e",
+          "department": "一般外科",
+          "accountId": "__FK_account_doctor_2",
+          "companyId": "__FK_company_admin",
+          "role": [128]
+        }
+      }
+    },
+    {
+      "table": "account",
+      "datas": {
+        "__target": "account_doctor_3",
+        "__targetVer": 1,
+        "data": {
+          "account": "fetdevdoctor3",
+          "password": "123456",
+          "userType": "e",
+          "salt": null
+        }
+      }
+    },
+    {
+      "table": "employee",
+      "datas": {
+        "__target": "employee_doctor_3",
+        "__targetVer": 2,
+        "data": {
+          "name": "黃雅君",
+          "code": "e",
+          "department": "眼科",
+          "accountId": "__FK_account_doctor_3",
+          "companyId": "__FK_company_admin",
+          "role": [128]
+        }
+      }
+    },
+    {
+      "table": "account",
+      "datas": {
+        "__target": "account_doctor_4",
+        "__targetVer": 1,
+        "data": {
+          "account": "fetdevdoctor4",
+          "password": "123456",
+          "userType": "e",
+          "salt": null
+        }
+      }
+    },
+    {
+      "table": "employee",
+      "datas": {
+        "__target": "employee_doctor_4",
+        "__targetVer": 1,
+        "data": {
+          "name": "劉志宏",
+          "code": "e",
+          "department": "一般外科",
+          "accountId": "__FK_account_doctor_4",
+          "companyId": "__FK_company_admin",
+          "role": [128]
+        }
+      }
+    },
+    {
+      "table": "account",
+      "datas": {
+        "__target": "account_doctor_5",
+        "__targetVer": 1,
+        "data": {
+          "account": "fetdevdoctor5",
+          "password": "123456",
+          "userType": "e",
+          "salt": null
+        }
+      }
+    },
+    {
+      "table": "employee",
+      "datas": {
+        "__target": "employee_doctor_5",
+        "__targetVer": 1,
+        "data": {
+          "name": "陳美禾",
+          "code": "e",
+          "department": "皮膚科",
+          "accountId": "__FK_account_doctor_5",
+          "companyId": "__FK_company_admin",
+          "role": [128]
+        }
+      }
+    },
+    {
+      "table": "account",
+      "datas": {
+        "__target": "account_doctor_6",
+        "__targetVer": 1,
+        "data": {
+          "account": "fetdevdoctor6",
+          "password": "123456",
+          "userType": "e",
+          "salt": null
+        }
+      }
+    },
+    {
+      "table": "employee",
+      "datas": {
+        "__target": "employee_doctor_6",
+        "__targetVer": 1,
+        "data": {
+          "name": "何怡慧",
+          "code": "e",
+          "department": "眼科",
+          "accountId": "__FK_account_doctor_6",
+          "companyId": "__FK_company_admin",
+          "role": [128]
+        }
+      }
+    },
+    {
+      "table": "account",
+      "datas": {
+        "__target": "account_doctor_7",
+        "__targetVer": 1,
+        "data": {
+          "account": "fetdevdoctor7",
+          "password": "123456",
+          "userType": "e",
+          "salt": null
+        }
+      }
+    },
+    {
+      "table": "employee",
+      "datas": {
+        "__target": "employee_doctor_7",
+        "__targetVer": 1,
+        "data": {
+          "name": "李志豪",
+          "code": "e",
+          "department": "眼科",
+          "accountId": "__FK_account_doctor_7",
+          "companyId": "__FK_company_admin",
+          "role": [128]
+        }
+      }
+    },
+    {
+      "table": "account",
+      "datas": {
+        "__target": "account_patient_1",
+        "__targetVer": 1,
+        "data": {
+          "account": "fetdevuser1",
+          "password": "123456",
+          "userType": "c",
+          "salt": null
+        }
+      }
+    },
+    {
+      "table": "customer",
+      "datas": {
+        "__target": "customer_patient_1",
+        "__targetVer": 1,
+        "data": {
+          "name": "王曉明",
+          "code": "c",
+          "personalId": "A223456789",
+          "mobile": "0971123456",
+          "accountId": "__FK_account_patient_1",
+          "companyId": "__FK_company_admin",
+          "role": [16]
+        }
+      }
+    },
+    {
+      "table": "account",
+      "datas": {
+        "__target": "account_patient_2",
+        "__targetVer": 1,
+        "data": {
+          "account": "fetdevuser2",
+          "password": "123456",
+          "userType": "c",
+          "salt": null
+        }
+      }
+    },
+    {
+      "table": "customer",
+      "datas": {
+        "__target": "customer_patient_2",
+        "__targetVer": 3,
+        "data": {
+          "name": "李麗雯",
+          "code": "c",
+          "personalId": "B223456789",
+          "mobile": "0977123456",
+          "accountId": "__FK_account_patient_2",
+          "companyId": "__FK_company_admin",
+          "role": [16]
+        }
+      }
+    },
+    {
+      "table": "account",
+      "datas": {
+        "__target": "account_patient_3",
+        "__targetVer": 1,
+        "data": {
+          "account": "fetdevuser3",
+          "password": "123456",
+          "userType": "c",
+          "salt": null
+        }
+      }
+    },
+    {
+      "table": "customer",
+      "datas": {
+        "__target": "customer_patient_3",
+        "__targetVer": 1,
+        "data": {
+          "name": "朱佳琪",
+          "code": "c",
+          "personalId": "C223456789",
+          "mobile": "0973123456",
+          "accountId": "__FK_account_patient_3",
+          "companyId": "__FK_company_admin",
+          "role": [16]
+        }
+      }
+    },
+    {
+      "table": "account",
+      "datas": {
+        "__target": "account_patient_4",
+        "__targetVer": 1,
+        "data": {
+          "account": "fetdevuser4",
+          "password": "123456",
+          "userType": "c",
+          "salt": null
+        }
+      }
+    },
+    {
+      "table": "customer",
+      "datas": {
+        "__target": "customer_patient_4",
+        "__targetVer": 1,
+        "data": {
+          "name": "黃子揚",
+          "code": "c",
+          "personalId": "D223456789",
+          "mobile": "0974123456",
+          "accountId": "__FK_account_patient_4",
+          "companyId": "__FK_company_admin",
+          "role": [16]
+        }
+      }
+    },
+    {
+      "table": "zoomAccount",
+      "datas": {
+        "__target": "zoomAccount_official_1",
+        "__targetVer": 2,
+        "data": {
+          "zoomAccount": "teleadmin3@healthplus.tw",
+          "password": "Fet97179430",
+          "userId": "mqnHffz-QHGHT_v37tBQ3Q",
+          "APIKey": "JRHjPHo1RoScyCpOu1AF6w",
+          "APISecret": "ey9LOLLpn7XUQWkuZz6nMS1csOS3kdMUbGmU",
+          "SDKKey": "b4kQzQ56r9oSfYXmd3EfB8HbSbUN0SJbInPI",
+          "SDKSecret": "Xt4kI5W1FnX1zB1IhHcKO13ZbVl26uRX7tjp",
+          "companyId": "__FK_company_admin",
+          "doctorIdUsed": "__FK_employee_doctor_1"
+        }
+      }
+    },
+    {
+      "table": "zoomAccount",
+      "datas": {
+        "__target": "zoomAccount_official_2",
+        "__targetVer": 2,
+        "data": {
+          "zoomAccount": "teleadmin4@healthplus.tw",
+          "password": "Fet97179430",
+          "userId": "xl73nO_gRFKLHhAN95rnww",
+          "APIKey": "JRHjPHo1RoScyCpOu1AF6w",
+          "APISecret": "ey9LOLLpn7XUQWkuZz6nMS1csOS3kdMUbGmU",
+          "SDKKey": "b4kQzQ56r9oSfYXmd3EfB8HbSbUN0SJbInPI",
+          "SDKSecret": "Xt4kI5W1FnX1zB1IhHcKO13ZbVl26uRX7tjp",
+          "companyId": "__FK_company_admin",
+          "doctorIdUsed": "__FK_employee_doctor_2"
+        }
+      }
+    },
+    {
+      "table": "zoomAccount",
+      "datas": {
+        "__target": "zoomAccount_official_3",
+        "__targetVer": 1,
+        "data": {
+          "zoomAccount": "teleadmin7@healthplus.tw",
+          "password": "Fet97179430",
+          "userId": "qqQKUDX0T3q7YeEdqr2Jlw",
+          "APIKey": "JRHjPHo1RoScyCpOu1AF6w",
+          "APISecret": "ey9LOLLpn7XUQWkuZz6nMS1csOS3kdMUbGmU",
+          "SDKKey": "b4kQzQ56r9oSfYXmd3EfB8HbSbUN0SJbInPI",
+          "SDKSecret": "Xt4kI5W1FnX1zB1IhHcKO13ZbVl26uRX7tjp",
+          "companyId": "__FK_company_admin",
+          "doctorIdUsed": "__FK_employee_doctor_3"
+        }
+      }
+    },
+    {
+      "table": "zoomAccount",
+      "datas": {
+        "__target": "zoomAccount_official_4",
+        "__targetVer": 1,
+        "data": {
+          "zoomAccount": "teleadmin8@healthplus.tw",
+          "password": "Fet97179430",
+          "userId": "91n1lWNUTBWvTMNjqpSaNg",
+          "APIKey": "JRHjPHo1RoScyCpOu1AF6w",
+          "APISecret": "ey9LOLLpn7XUQWkuZz6nMS1csOS3kdMUbGmU",
+          "SDKKey": "b4kQzQ56r9oSfYXmd3EfB8HbSbUN0SJbInPI",
+          "SDKSecret": "Xt4kI5W1FnX1zB1IhHcKO13ZbVl26uRX7tjp",
+          "companyId": "__FK_company_admin",
+          "doctorIdUsed": "__FK_employee_doctor_4"
+        }
+      }
+    },
+    {
+      "table": "zoomAccount",
+      "datas": {
+        "__target": "zoomAccount_official_5",
+        "__targetVer": 1,
+        "data": {
+          "zoomAccount": "teleadmin9@healthplus.tw",
+          "password": "Fet97179430",
+          "userId": "e-rachi8Sru6R1e7NIsGrw",
+          "APIKey": "JRHjPHo1RoScyCpOu1AF6w",
+          "APISecret": "ey9LOLLpn7XUQWkuZz6nMS1csOS3kdMUbGmU",
+          "SDKKey": "b4kQzQ56r9oSfYXmd3EfB8HbSbUN0SJbInPI",
+          "SDKSecret": "Xt4kI5W1FnX1zB1IhHcKO13ZbVl26uRX7tjp",
+          "companyId": "__FK_company_admin",
+          "doctorIdUsed": "__FK_employee_doctor_5"
+        }
+      }
+    },
+    {
+      "table": "zoomAccount",
+      "datas": {
+        "__target": "zoomAccount_official_6",
+        "__targetVer": 1,
+        "data": {
+          "zoomAccount": "teleadmin10@healthplus.tw",
+          "password": "Fet97179430",
+          "userId": "UZNp9h1lQLyEPD7yk1Z5Lg",
+          "APIKey": "JRHjPHo1RoScyCpOu1AF6w",
+          "APISecret": "ey9LOLLpn7XUQWkuZz6nMS1csOS3kdMUbGmU",
+          "SDKKey": "b4kQzQ56r9oSfYXmd3EfB8HbSbUN0SJbInPI",
+          "SDKSecret": "Xt4kI5W1FnX1zB1IhHcKO13ZbVl26uRX7tjp",
+          "companyId": "__FK_company_admin",
+          "doctorIdUsed": "__FK_employee_doctor_6"
+        }
+      }
+    },
+    {
+      "table": "departmentList",
+      "datas": {
+        "__target": "departmentList_1",
+        "__targetVer": 0,
+        "data": {
+          "departmentNameList": [
+            { "code": "M", "zh_TW": "內科", "en_US": "Medical" },
+            { "code": "S", "zh_TW": "外科", "en_US": "Surgery" },
+            { "code": "GS", "zh_TW": "一般外科", "en_US": "General Surgery" },
+            { "code": "ORTHO", "zh_TW": "骨科", "en_US": "Orthopedics" },
+            {
+              "code": "ENT",
+              "zh_TW": "耳鼻喉科",
+              "en_US": "Ears, Nose, and Throat"
+            },
+            { "code": "OPH", "zh_TW": "眼科", "en_US": "Ophthalmology" },
+            { "code": "DER", "zh_TW": "皮膚科", "en_US": "Dermatology" }
+          ],
+          "companyId": "__FK_company_admin"
+        }
+      }
+    },
+    {
+      "table": "department",
+      "datas": {
+        "__target": "department_fetDev_1",
+        "__targetVer": 0,
+        "data": {
+          "name": "耳鼻喉部",
+          "code": "FD0654",
+          "companyId": "__FK_company_admin"
+        }
+      }
+    },
+    {
+      "table": "department",
+      "datas": {
+        "__target": "department_fetDev_2",
+        "__targetVer": 0,
+        "data": {
+          "name": "皮膚部",
+          "code": "FD0954",
+          "companyId": "__FK_company_admin"
+        }
+      }
+    },
+    {
+      "table": "department",
+      "datas": {
+        "__target": "department_fetDev_3",
+        "__targetVer": 0,
+        "data": {
+          "name": "眼科部",
+          "code": "FD0554",
+          "companyId": "__FK_company_admin"
+        }
+      }
+    }
+  ]
+}

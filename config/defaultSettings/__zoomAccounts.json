@@ -1,0 +1,38 @@
+{
+  "default": 
+  [
+      {
+          "table": "zoomAccount",
+          "datas": {
+              "__target": "zoomAccount_1",
+              "__targetVer": 1,
+              "data": {
+                  "zoomAccount": "r97543042@gmail.com",
+                  "password": null,
+                  "userId": "snLQAGKIR8eHHXh3vUV8cw",
+                  "APIKey": "GGlQAAKyQQW_UtSJHKdnwQ",
+                  "APISecret": "6kicPYdiwudNhidnx9FGB6QLtb1CrQpau02D",
+                  "SDKKey": "GgbHJmdkpwk5pMrhIl3ESRMSGeOgJNOPzNlb",
+                  "SDKSecret": "RgelWbu0l1HrZ9SHSaiP7gnkOuRcpN16Xo0W"
+              }
+          }
+      },
+      {
+        "table": "zoomAccount",
+        "datas": {
+            "__target": "zoomAccount_2",
+            "__targetVer": 2,
+            "data": {
+                "zoomAccount": "ricoyang@fareastone.com.tw",
+                "password": null,
+                "userId": "OLdyZIEXTTaJQ8CeXyveSg",
+                "APIKey": "GeHD5Pz6SfyopchM0fQfEw",
+                "APISecret": "7b06LUWtS5qE9RObgyalxg3n2lW6H1RNICAe",
+                "SDKKey": "J0Wbp3WtmwdxeR2gw4ZvM6mmkI1XdrVd7Ctc",
+                "SDKSecret": "ydks9yob2ofsivct9pcgeooHYDQsA9PrBQIE",
+                "companyId": "__FK_company_admin"
+            }
+        }
+    }
+  ]
+}

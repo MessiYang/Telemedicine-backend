@@ -1,0 +1,105 @@
+{
+  "default": 
+  [
+      {
+          "table": "company",
+          "datas": {
+              "__target": "company_cmh_admin",
+              "__targetVer": 1,
+              "data": {
+                  "code": "cmh",
+                  "region": "south",
+                  "displayname": "奇美醫院",
+                  "fullname": "奇美醫院",
+                  "address": "",
+                  "phone": 	"886-6-281-2811",
+                  "longitude": null,
+                  "latitude": null
+              }
+          }
+      },
+      {
+          "table": "account",
+          "datas": {
+              "__target": "account_cmh_admin",
+              "__targetVer": 1,
+              "data": {
+                  "account": "cmhadmin",
+                  "password": "123456",
+                  "userType": "e",
+                  "salt": null
+              }
+          }
+      },
+      {
+          "table": "employee",
+          "datas": {
+              "__target": "employee_cmh_admin",
+              "__targetVer": 1,
+              "data": {
+                  "name": "管理員",
+                  "code": "e",
+                  "accountId": "__FK_account_cmh_admin",
+                  "companyId": "__FK_company_cmh_admin",
+                  "role": [ 256 ]
+              }
+          }
+      },
+      {
+          "table": "account",
+          "datas": {
+              "__target": "account_cmh_doctor_1",
+              "__targetVer": 1,
+              "data": {
+                  "account": "CMtrial1",
+                  "password": "Cm13579",
+                  "userType": "e",
+                  "salt": null
+              }
+          }
+      },
+      {
+          "table": "employee",
+          "datas": {
+              "__target": "employee_cmh_doctor_1",
+              "__targetVer": 1,
+              "data": {
+                  "name": "CMtrial1",
+                  "code": "e",
+                  "department": "急診部",
+                  "accountId": "__FK_account_cmh_doctor_1",
+                  "companyId": "__FK_company_cmh_admin",
+                  "role": [ 128 ]
+              }
+          }
+      },
+      {
+          "table": "account",
+          "datas": {
+              "__target": "account_cmh_doctor_2",
+              "__targetVer": 1,
+              "data": {
+                  "account": "CMtrial2",
+                  "password": "Cm24680",
+                  "userType": "e",
+                  "salt": null
+              }
+          }
+      },
+      {
+          "table": "employee",
+          "datas": {
+              "__target": "employee_cmh_doctor_2",
+              "__targetVer": 1,
+              "data": {
+                  "name": "CMtrial2",
+                  "code": "e",
+                  "department": "急診部",
+                  "accountId": "__FK_account_cmh_doctor_2",
+                  "companyId": "__FK_company_cmh_admin",
+                  "role": [ 128 ]
+              }
+          }
+      }
+  ]
+}

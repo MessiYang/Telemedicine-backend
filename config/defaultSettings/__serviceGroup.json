@@ -1,0 +1,16 @@
+{
+  "default": 
+  [
+    {
+        "table": "serviceGroup",
+        "datas": {
+            "__target": "serviceGroup_1",
+            "__targetVer": 0,
+            "data": {
+                "displayname": "遠傳群組",
+                "companyIds": [null]
+            }
+        }
+    }
+  ]
+}

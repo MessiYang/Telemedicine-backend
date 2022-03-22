@@ -1,0 +1,295 @@
+{
+  "default": 
+  [
+      {
+          "table": "company",
+          "datas": {
+              "__target": "company_kmuh",
+              "__targetVer": 0,
+              "data": {
+                  "code": "kmuh",
+                  "region": "south",
+                  "displayname": "高雄醫院",
+                  "fullname": "高雄醫學大學附設中和紀念醫院",
+                  "address": "高雄市三民區自由一路100號",
+                  "phone": 	"07-3121101",
+                  "longitude": null,
+                  "latitude": null
+              }
+          }
+      },
+      {
+          "table": "account",
+          "datas": {
+              "__target": "account_kmuh_admin",
+              "__targetVer": 0,
+              "data": {
+                  "account": "kmuhadmin",
+                  "password": "123456",
+                  "userType": "e",
+                  "salt": null
+              }
+          }
+      },
+      {
+          "table": "employee",
+          "datas": {
+              "__target": "employee_kmuh_admin",
+              "__targetVer": 0,
+              "data": {
+                  "name": "高醫管理員",
+                  "code": "e",
+                  "accountId": "__FK_account_kmuh_admin",
+                  "companyId": "__FK_company_kmuh",
+                  "role": [ 256 ]
+              }
+          }
+      },
+      {
+        "table": "account",
+        "datas": {
+            "__target": "account_kmuh_doctor_1",
+            "__targetVer": 0,
+            "data": {
+                "account": "kmuh860097",
+                "password": "123456",
+                "userType": "e",
+                "salt": null
+            }
+        }
+    },
+    {
+        "table": "employee",
+        "datas": {
+            "__target": "employee_kmuh_doctor_1",
+            "__targetVer": 1,
+            "data": {
+                "name": "王凌峰",
+                "code": "e",
+                "employeeNumber": "860097",
+                "department": "耳鼻喉部",
+                "departmentCode" : "0654",
+                "accountId": "__FK_account_kmuh_doctor_1",
+                "companyId": "__FK_company_kmuh",
+                "role": [ 128 ]
+            }
+        }
+    },
+    {
+      "table": "account",
+      "datas": {
+          "__target": "account_kmuh_doctor_2",
+          "__targetVer": 0,
+          "data": {
+              "account": "kmuh920273",
+              "password": "123456",
+              "userType": "e",
+              "salt": null
+          }
+      }
+    },
+    {
+        "table": "employee",
+        "datas": {
+            "__target": "employee_kmuh_doctor_2",
+            "__targetVer": 1,
+            "data": {
+                "name": "簡禎佑",
+                "code": "e",
+                "employeeNumber": "920273",
+                "department": "耳鼻喉部",
+                "departmentCode" : "0654",
+                "accountId": "__FK_account_kmuh_doctor_2",
+                "companyId": "__FK_company_kmuh",
+                "role": [ 128 ]
+            }
+        }
+    },
+    {
+      "table": "account",
+      "datas": {
+          "__target": "account_kmuh_doctor_3",
+          "__targetVer": 0,
+          "data": {
+              "account": "kmuh960239",
+              "password": "123456",
+              "userType": "e",
+              "salt": null
+          }
+      }
+    },
+    {
+        "table": "employee",
+        "datas": {
+            "__target": "employee_kmuh_doctor_3",
+            "__targetVer": 1,
+            "data": {
+                "name": "林逸筑",
+                "code": "e",
+                "employeeNumber": "960239",
+                "department": "耳鼻喉部",
+                "departmentCode" : "0654",
+                "accountId": "__FK_account_kmuh_doctor_3",
+                "companyId": "__FK_company_kmuh",
+                "role": [ 128 ]
+            }
+        }
+    },  
+    {
+      "table": "account",
+      "datas": {
+          "__target": "account_kmuh_doctor_4",
+          "__targetVer": 0,
+          "data": {
+              "account": "kmuh890103",
+              "password": "123456",
+              "userType": "e",
+              "salt": null
+          }
+      }
+    },
+    {
+        "table": "employee",
+        "datas": {
+            "__target": "employee_kmuh_doctor_4",
+            "__targetVer": 1,
+            "data": {
+                "name": "藍政哲",
+                "code": "e",
+                "employeeNumber": "890103",
+                "department": "皮膚部",
+                "departmentCode" : "0954",
+                "accountId": "__FK_account_kmuh_doctor_4",
+                "companyId": "__FK_company_kmuh",
+                "role": [ 128 ]
+            }
+        }
+    },  
+    {
+      "table": "account",
+      "datas": {
+          "__target": "account_kmuh_doctor_5",
+          "__targetVer": 0,
+          "data": {
+              "account": "kmuh1030557",
+              "password": "123456",
+              "userType": "e",
+              "salt": null
+          }
+      }
+    },
+    {
+        "table": "employee",
+        "datas": {
+            "__target": "employee_kmuh_doctor_5",
+            "__targetVer": 1,
+            "data": {
+                "name": "林聖堯",
+                "code": "e",
+                "employeeNumber": "1030557",
+                "department": "皮膚部",
+                "departmentCode" : "0954",
+                "accountId": "__FK_account_kmuh_doctor_5",
+                "companyId": "__FK_company_kmuh",
+                "role": [ 128 ]
+            }
+        }
+    },     
+    {
+      "table": "account",
+      "datas": {
+          "__target": "account_kmuh_doctor_6",
+          "__targetVer": 0,
+          "data": {
+              "account": "kmuh1080173",
+              "password": "123456",
+              "userType": "e",
+              "salt": null
+          }
+      }
+    },
+    {
+        "table": "employee",
+        "datas": {
+            "__target": "employee_kmuh_doctor_6",
+            "__targetVer": 1,
+            "data": {
+                "name": "許淑娟",
+                "code": "e",
+                "employeeNumber": "1080173",
+                "department": "眼科部",
+                "departmentCode" : "0554",
+                "accountId": "__FK_account_kmuh_doctor_6",
+                "companyId": "__FK_company_kmuh",
+                "role": [ 128 ]
+            }
+        }
+    },   
+    {
+      "table": "account",
+      "datas": {
+          "__target": "account_kmuh_doctor_7",
+          "__targetVer": 0,
+          "data": {
+              "account": "kmuh1030292",
+              "password": "123456",
+              "userType": "e",
+              "salt": null
+          }
+      }
+    },
+    {
+        "table": "employee",
+        "datas": {
+            "__target": "employee_kmuh_doctor_7",
+            "__targetVer": 1,
+            "data": {
+                "name": "李怡萱",
+                "code": "e",
+                "employeeNumber": "1030292",
+                "department": "眼科部",
+                "departmentCode" : "0554",
+                "accountId": "__FK_account_kmuh_doctor_7",
+                "companyId": "__FK_company_kmuh",
+                "role": [ 128 ]
+            }
+        }
+    },
+    {
+        "table": "department",
+        "datas": {
+            "__target": "department_kmuh_1",
+            "__targetVer": 0,
+            "data": {
+                "name": "耳鼻喉部",
+                "code": "0654",
+                "companyId": "__FK_company_kmuh"
+            }
+        }
+    },
+    {
+        "table": "department",
+        "datas": {
+            "__target": "department_kmuh_2",
+            "__targetVer": 0,
+            "data": {
+                "name": "皮膚部",
+                "code": "0954",
+                "companyId": "__FK_company_kmuh"
+            }
+        }
+    },
+    {
+        "table": "department",
+        "datas": {
+            "__target": "department_kmuh_3",
+            "__targetVer": 0,
+            "data": {
+                "name": "眼科部",
+                "code": "0554",
+                "companyId": "__FK_company_kmuh"
+            }
+        }
+    }                                
+  ]
+}

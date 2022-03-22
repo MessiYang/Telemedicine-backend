@@ -1,0 +1,259 @@
+{
+    "default": 
+    [
+        {
+            "table": "company",
+            "datas": {
+                "__target": "company_fem_admin",
+                "__targetVer": 3,
+                "data": {
+                    "code": "femh",
+                    "region": "north",
+                    "displayname": "亞東紀念醫院",
+                    "fullname": "亞東紀念醫院",
+                    "address": "新北市板橋區南雅南路二段21號",
+                    "phone": 	"886-2-8966-7000",
+                    "longitude": null,
+                    "latitude": null
+                }
+            }
+        },
+        {
+            "table": "account",
+            "datas": {
+                "__target": "account_fem_admin",
+                "__targetVer": 1,
+                "data": {
+                    "account": "femadmin",
+                    "password": "123456",
+                    "userType": "e",
+                    "salt": null
+                }
+            }
+        },
+        {
+            "table": "employee",
+            "datas": {
+                "__target": "employee_fem_admin",
+                "__targetVer": 1,
+                "data": {
+                    "name": "Administrator",
+                    "code": "e",
+                    "accountId": "__FK_account_fem_admin",
+                    "companyId": "__FK_company_fem_admin",
+                    "role": [ 256 ]
+                }
+            }
+        },
+        {
+            "table": "account",
+            "datas": {
+                "__target": "account_fem_doctor_1",
+                "__targetVer": 1,
+                "data": {
+                    "account": "femdoctor",
+                    "password": "123456",
+                    "userType": "e",
+                    "salt": null
+                }
+            }
+        },
+        {
+            "table": "employee",
+            "datas": {
+                "__target": "employee_fem_doctor_1",
+                "__targetVer": 2,
+                "data": {
+                    "name": "李家昇",
+                    "code": "e",
+                    "department": "急診科",
+                    "departmentCode" : "SD0554",
+                    "accountId": "__FK_account_fem_doctor_1",
+                    "companyId": "__FK_company_fem_admin",
+                    "role": [ 128 ]
+                }
+            }
+        },
+        {
+            "table": "account",
+            "datas": {
+                "__target": "account_fem_doctor_2",
+                "__targetVer": 1,
+                "data": {
+                    "account": "femdoctor2",
+                    "password": "123456",
+                    "userType": "e",
+                    "salt": null
+                }
+            }
+        },
+        {
+            "table": "employee",
+            "datas": {
+                "__target": "employee_fem_doctor_2",
+                "__targetVer": 1,
+                "data": {
+                    "name": "游世昌",
+                    "code": "e",
+                    "department": "新陳代謝科",
+                    "accountId": "__FK_account_fem_doctor_2",
+                    "companyId": "__FK_company_fem_admin",
+                    "role": [ 128 ]
+                }
+            }
+        },
+        {
+            "table": "account",
+            "datas": {
+                "__target": "account_fem_doctor_3",
+                "__targetVer": 1,
+                "data": {
+                    "account": "femdoctor3",
+                    "password": "123456",
+                    "userType": "e",
+                    "salt": null
+                }
+            }
+        },
+        {
+            "table": "employee",
+            "datas": {
+                "__target": "employee_fem_doctor_3",
+                "__targetVer": 1,
+                "data": {
+                    "name": "李宏儒",
+                    "code": "e",
+                    "department": "急診科",
+                    "departmentCode" : "SD0554",
+                    "accountId": "__FK_account_fem_doctor_3",
+                    "companyId": "__FK_company_fem_admin",
+                    "role": [ 128 ]
+                }
+            }
+        },
+        {
+            "table": "account",
+            "datas": {
+                "__target": "account_fem_patient_1",
+                "__targetVer": 1,
+                "data": {
+                    "account": "femuser1",
+                    "password": "123456",
+                    "userType": "c",
+                    "salt": null
+                }
+            }
+        },
+        {
+            "table": "customer",
+            "datas": {
+                "__target": "customer_fem_patient_1",
+                "__targetVer": 3,
+                "data": {
+                    "name": "王秀仁",
+                    "code": "c",
+                    "personalId": "A123456789",
+                    "mobile": "0983123456",
+                    "department": "急診科",
+                    "departmentCode" : "SD0554",
+                    "wardCode": "C103",
+                    "wardName" : "骨科病房",
+                    "accountId": "__FK_account_fem_patient_1",
+                    "companyId": "__FK_company_fem_admin",
+                    "role": [ 16 ]
+                }
+            }
+        },
+        {
+            "table": "account",
+            "datas": {
+                "__target": "account_fem_patient_2",
+                "__targetVer": 1,
+                "data": {
+                    "account": "femfamily1",
+                    "password": "123456",
+                    "userType": "c",
+                    "salt": null
+                }
+            }
+        },
+        {
+            "table": "customer",
+            "datas": {
+                "__target": "customer_fem_patient_2",
+                "__targetVer": 1,
+                "data": {
+                    "name": "蔡孟修",
+                    "code": "c",
+                    "personalId": "B223456789",
+                    "mobile": "0981123456",
+                    "accountId": "__FK_account_fem_patient_2",
+                    "companyId": "__FK_company_fem_admin",
+                    "role": [ 8 ]
+                }
+            }
+        },
+        {
+            "table": "account",
+            "datas": {
+                "__target": "account_fem_family_2",
+                "__targetVer": 1,
+                "data": {
+                    "account": "femfamily2",
+                    "password": "123456",
+                    "userType": "c",
+                    "salt": null
+                }
+            }
+        },
+        {
+            "table": "customer",
+            "datas": {
+                "__target": "customer_fem_family_2",
+                "__targetVer": 2,
+                "data": {
+                    "name": "周佳人",
+                    "code": "c",
+                    "personalId": "B223456789",
+                    "mobile": "0981123456",
+                    "relationship": "夫妻",
+                    "relationalPatientId":"__FK_customer_fem_patient_1",
+                    "accountId": "__FK_account_fem_family_2",
+                    "companyId": "__FK_company_fem_admin",
+                    "role": [ 8 ]
+                }
+            }
+        },
+        {
+            "table": "account",
+            "datas": {
+                "__target": "account_fem_family_3",
+                "__targetVer": 1,
+                "data": {
+                    "account": "femfamily3",
+                    "password": "123456",
+                    "userType": "c",
+                    "salt": null
+                }
+            }
+        },
+        {
+            "table": "customer",
+            "datas": {
+                "__target": "customer_fem_family_3",
+                "__targetVer": 2,
+                "data": {
+                    "name": "王浩天",
+                    "code": "c",
+                    "personalId": "B223456711",
+                    "mobile": "0981123477",
+                    "relationship": "父子",
+                    "relationalPatientId":"__FK_customer_fem_patient_1",
+                    "accountId": "__FK_account_fem_family_3",
+                    "companyId": "__FK_company_fem_admin",
+                    "role": [ 8 ]
+                }
+            }
+        }
+    ]
+}
