@@ -1,0 +1,150 @@
+version: '3.7'
+services:
+  mongodb:
+    image: mongo:4.0
+    ports:
+      - "27017:27017"
+    volumes:
+      - db-data:/data/db  
+      # host : container folder 
+    deploy:
+      placement:
+        constraints: [node.hostname == telemed-mongodb]
+    command: [--auth]
+    environment:
+      - "TZ=Asia/Taipei"
+    networks:
+      - webnet
+  telemedicine_backend:
+    image: harbor.plover.tw/telemedicine/telemedicine-backend
+   # restart: always
+   # container_name: telemedicine
+   # links:
+   #   - mongo
+    ports:
+      - "3001:3001"
+    volumes:
+      - backend-data:/service-telemedicine-backend/main/logs   
+      - backend-public-data:/service-telemedicine-backend/main/public     
+    environment:
+      - "TZ=Asia/Taipei"
+      - "IS_SCHEDULE=false"
+    deploy:
+      replicas: 2
+      placement:
+        constraints: [node.hostname != telemed-mongodb]
+      update_config:
+        parallelism: 1
+        delay: 60s
+        failure_action: rollback
+     # resources:
+     #   limits:
+     #     cpus: "1"
+     #     memory: 900M 
+     # restart_policy:
+     #   condition: on-failure
+    networks:
+      - apinet
+      - webnet
+
+  telemedicine_backend_schedule:
+    image: harbor.plover.tw/telemedicine/telemedicine-backend
+    ports:
+      - "3002:3001"
+    volumes:
+      - backend-data:/service-telemedicine-backend/main/logs      
+      - backend-public-data:/service-telemedicine-backend/main/public  
+    environment:
+      - "TZ=Asia/Taipei"
+      - "IS_SCHEDULE=true"
+    deploy:
+      replicas: 1
+      placement:
+        constraints: [node.hostname != telemed-mongodb]
+      update_config:
+        parallelism: 1
+        delay: 60s
+        failure_action: rollback
+    networks:
+      - apinet
+      - webnet
+
+  proxy:
+    image: nginx:1.16.1-alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /etc/nginx/ssl:/etc/nginx/ssl
+      - /etc/nginx/conf.d:/etc/nginx/conf.d
+      - nginx-data:/var/log/nginx/
+    depends_on:
+      - telemedicine_backend
+      - telemedicine_backend_schedule
+    deploy:
+      placement:
+        constraints: [node.role == manager]
+    networks: 
+      - apinet      
+
+  # telemedicine_frontend:
+  #   image: fetrico/tmfront:v1
+  #   ports:
+  #     - "8080:8080"
+  #   #volumes:
+  #   #  - backend-data/frontend/:/service-telemedicine-backend/Demo/main      
+  #   environment:
+  #     - "TZ=Asia/Taipei"
+  #   deploy:
+  #     replicas: 1
+  #     update_config:
+  #       parallelism: 1
+  #       delay: 100s
+  #       failure_action: rollback
+  # adminweb:
+  #   image: fetrico/tmadmin:v1
+  #   ports:
+  #     - "8080:8080"
+  #   #volumes:
+  #   #  - backend-data/frontend/:/service-telemedicine-backend/Demo/main      
+  #   environment:
+  #     - "TZ=Asia/Taipei"
+  #   deploy:
+  #     replicas: 1
+  #     update_config:
+  #       parallelism: 1
+  #       delay: 100s
+  #       failure_action: rollback
+#    networks:
+#      - webnet
+  redis:
+    image: redis:4.0.11
+    environment:
+      - "TZ=Asia/Taipei"
+    volumes:
+      - redis-data:/data
+    command: 
+      redis-server --appendonly yes
+    deploy:
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
+      restart_policy:
+        condition: on-failure
+    ports:
+      - 6379:6379
+    networks:
+      - webnet
+
+networks:
+  webnet:
+  apinet:
+    driver: overlay
+
+volumes:
+  db-data:   
+  backend-data:
+  backend-public-data:
+  redis-data:
+  nginx-data:
+  
